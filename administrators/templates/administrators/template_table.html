@@ -1,0 +1,83 @@
+{% load django_tables2 %}
+
+<div class="w-full lg:max-w-4xl">
+  <div class="relative border">
+    <!-- Tabel -->
+    <table id="example" class="display nowrap w-full text-sm text-left text-gray-500">
+      <thead class="bg-gray-200">
+        <tr>
+          {% for column in table.columns %}
+            <th class="px-4 py-2 whitespace-nowrap">{{ column.header }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in table.paginated_rows %}
+          <tr>
+            {% for column, cell in row.items %}
+              <td class="border px-4 py-2 whitespace-nowrap">{{ cell }}</td>
+            {% endfor %}
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="{{ table.columns|length }}" class="border px-4 py-2 text-center">No data available</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- DataTables CSS & JS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css" />
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
+
+<script>
+  $(document).ready(function () {
+    $('#example').DataTable({
+      scrollX: true, // Aktifkan scroll horizontal
+      scrollCollapse: true, // Optimalkan jika tabel lebih kecil
+      autoWidth: false // Mencegah ukuran tabel membengkak
+    })
+  })
+</script>
+
+<script>
+  $('#reloadButton').click(function () {
+    location.reload()
+  })
+</script>
+
+{% comment %} <div class="w-full lg:max-w-4xl">
+  <!-- Wrapper untuk scroll horizontal -->
+  <div class="relative overflow-x-auto border rounded-lg shadow-md">
+    <!-- Tabel -->
+    <table id="example" class="table-auto w-full text-sm text-left text-gray-500 dark:text-gray-400">
+      <!-- Bungkus thead dan tbody dalam div -->
+      <div class="overflow-x-auto w-full">
+        <thead class="">
+          <tr>
+            {% for column in table.columns %}
+              <th class="px-4 py-2 whitespace-nowrap min-w-[150px]">{{ column.header }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in table.paginated_rows %}
+            <tr>
+              {% for column, cell in row.items %}
+                <td class="border px-4 py-2 whitespace-nowrap min-w-[150px]">{{ cell }}</td>
+              {% endfor %}
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="{{ table.columns|length }}" class="border px-4 py-2 text-center">No data available</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </div>
+    </table>
+  </div>
+</div>
+{% endcomment %}

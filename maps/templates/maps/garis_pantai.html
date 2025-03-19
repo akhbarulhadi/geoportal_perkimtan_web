@@ -1,0 +1,38 @@
+{% extends 'template.html' %}
+
+{% block page_title %}
+  Peta Garis Pantai
+{% endblock %}
+
+{% block contents %}
+  <main class="flex-1 p-4">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <h2 class="text-2xl font-bold mb-4">Peta Garis Pantai Kota Batam</h2>
+
+      <div id="map" class="w-full h-[500px] rounded-lg shadow-md"></div>
+    </div>
+  </main>
+
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var map = L.map('map').setView([1.108, 104.05], 12); // Pusatkan ke Batam
+
+      // Tambahkan peta dasar dari OpenStreetMap
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+
+      // Data GeoJSON dari Django
+      var garisPantai = {{ garis_pantai|safe }};
+
+      // Tambahkan ke peta
+      L.geoJSON(garisPantai, {
+        style: { color: 'blue', weight: 2 }
+      }).addTo(map);
+    });
+  </script>
+{% endblock %}
