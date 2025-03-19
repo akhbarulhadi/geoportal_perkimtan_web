@@ -29,9 +29,30 @@
       // Data GeoJSON dari Django
       var garisPantai = {{ garis_pantai|safe }};
 
-      // Tambahkan ke peta
+      // Fungsi untuk menambahkan popup saat garis diklik
+      function onEachFeature(feature, layer) {
+        if (feature.properties) {
+          let detail = "<b>Detail Garis:</b><br>";
+          for (let key in feature.properties) {
+            detail += `<b>${key}:</b> ${feature.properties[key]}<br>`;
+          }
+          layer.bindPopup(detail);
+        }
+
+        // Efek hover untuk memperjelas fitur yang bisa diklik
+        layer.on('mouseover', function () {
+          this.setStyle({ weight: 4, color: 'red' });
+        });
+
+        layer.on('mouseout', function () {
+          this.setStyle({ weight: 2, color: 'blue' });
+        });
+      }
+
+      // Tambahkan garis pantai ke peta dengan interaksi klik
       L.geoJSON(garisPantai, {
-        style: { color: 'blue', weight: 2 }
+        style: { color: 'blue', weight: 2 },
+        onEachFeature: onEachFeature
       }).addTo(map);
     });
   </script>
