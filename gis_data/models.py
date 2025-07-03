@@ -1,6 +1,7 @@
 from django.contrib.gis.db import models
 from maps.models import GeoDataset
 from django.contrib.auth.models import User
+from django.conf import settings
 
 # Create your models here.
 
@@ -41,7 +42,7 @@ class Kelurahan(models.Model):
 class Perumahan(models.Model):
     id_perumahan = models.AutoField(primary_key=True)
     nama_perumahan = models.CharField(max_length=255)
-    photo_perumahan = models.ImageField(upload_to='perumahan_photo/', blank=True, null=True)
+    photo_perumahan = models.ImageField(upload_to='perumahan_photo/', blank=True, null=True, storage=settings.SUPABASE_STORAGE_BACKEND)
     kecamatan = models.ForeignKey(Kecamatan, on_delete=models.CASCADE)
     kelurahan = models.ForeignKey(Kelurahan, on_delete=models.CASCADE)
     alamat_lengkap_perumahan = models.CharField(max_length=255)
@@ -79,7 +80,7 @@ class Rumah(models.Model):
     geo = models.OneToOneField(GeoDataset, on_delete=models.CASCADE)
 
     nama_perumahan = models.ForeignKey(Perumahan, on_delete=models.CASCADE)
-    photo_rumah = models.ImageField(upload_to='rumah_photo/', blank=True, null=True)
+    photo_rumah = models.ImageField(upload_to='rumah_photo/', blank=True, null=True, storage=settings.SUPABASE_STORAGE_BACKEND)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -135,8 +136,8 @@ class Taman(models.Model):
         return "{}".format(self.nama_taman)
     
 class AddRequest(models.Model):
-    photo_rumah = models.ImageField(upload_to='rumah_photo/', blank=True, null=True)
-    photo_perumahan = models.ImageField(upload_to='perumahan_photo/', blank=True, null=True)
+    photo_rumah = models.ImageField(upload_to='rumah_photo/', blank=True, null=True, storage=settings.SUPABASE_STORAGE_BACKEND)
+    photo_perumahan = models.ImageField(upload_to='perumahan_photo/', blank=True, null=True, storage=settings.SUPABASE_STORAGE_BACKEND)
     geometry = models.GeometryField(srid=4326)
     data = models.JSONField(blank=True, null=True)
     dibuat_oleh = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
@@ -146,8 +147,8 @@ class AddRequest(models.Model):
 
 class UpdateRequest(models.Model):
     id_rumah = models.ForeignKey(Rumah, on_delete=models.CASCADE, blank=True, null=True)
-    photo_rumah = models.ImageField(upload_to='rumah_photo/', blank=True, null=True)
-    photo_perumahan = models.ImageField(upload_to='perumahan_photo/', blank=True, null=True)
+    photo_rumah = models.ImageField(upload_to='rumah_photo/', blank=True, null=True, storage=settings.SUPABASE_STORAGE_BACKEND)
+    photo_perumahan = models.ImageField(upload_to='perumahan_photo/', blank=True, null=True, storage=settings.SUPABASE_STORAGE_BACKEND)
     data = models.JSONField(blank=True, null=True)
     dibuat_oleh = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     dibuat_pada = models.DateTimeField(auto_now_add=True)

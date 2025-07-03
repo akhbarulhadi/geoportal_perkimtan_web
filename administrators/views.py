@@ -813,8 +813,8 @@ def viewUpdateRequestRumah(request):
     isi = {
         'placeholder_search' : placeholder_search,
         'table': table,
-        'page_title': 'Pengajuan Tambah Unit Rumah',
-        'subjudul': 'Pengajuan Tambah Unit Rumah',
+        'page_title': 'Pengajuan Perubahan Unit Rumah',
+        'subjudul': 'Pengajuan Perubahan Unit Rumah',
     }
     return render(request, 'administrators/table_view.html', isi)
 

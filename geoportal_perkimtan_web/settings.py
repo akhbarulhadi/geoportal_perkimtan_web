@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 from decouple import config
 import os
+from supabase import create_client
+from geoportal_perkimtan_web.supabase_storage import SupabaseStorage
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -35,6 +37,23 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 GDAL_LIBRARY_PATH = os.environ.get('GDAL_LIBRARY_PATH', 'C:/OSGeo4W/bin/gdal310.dll')
 GEOS_LIBRARY_PATH = os.environ.get('GEOS_LIBRARY_PATH', 'C:/OSGeo4W/bin/geos_c.dll')
+
+SUPABASE_URL = config('SUPABASE_URL')
+SUPABASE_KEY = config('SUPABASE_KEY')
+SUPABASE_BUCKET_NAME = config('SUPABASE_BUCKET_NAME')
+
+# Buat instance Supabase client
+SUPABASE_CLIENT = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+# Atur Supabase Storage sebagai default untuk file media
+DEFAULT_FILE_STORAGE = 'geoportal_perkimtan_web.supabase_storage.SupabaseStorage'
+
+# Buat instance SupabaseStorage
+SUPABASE_STORAGE_BACKEND = SupabaseStorage(
+    client=SUPABASE_CLIENT,
+    bucket_name=SUPABASE_BUCKET_NAME,
+)
+
 
 # Application definition
 
