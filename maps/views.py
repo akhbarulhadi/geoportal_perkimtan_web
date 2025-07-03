@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from .models import GarisPantai, KawasanKumuh, JalanLingkungan, Maps, DataMaps, FieldMaps
 from django.contrib.gis.serializers import geojson
-from gis_data.models import Rumah, Kecamatan, Kelurahan, AddRequest
+from gis_data.models import Rumah, Kecamatan, Kelurahan, AddRequest, UpdateRequest
 from administrators.table import RumahTable
 from .forms import mapsForm
 from django.contrib import messages
@@ -409,7 +409,7 @@ def upload_geojson_unit_rumah(request):
 
 
 @login_required(login_url='/login')
-def maps_object(request, pk):
+def maps_object_add_rumah(request, pk):
     queryset = AddRequest.objects.filter(pk=pk)
 
     features = []
@@ -432,10 +432,10 @@ def maps_object(request, pk):
         'kategori': pk,
         'data_map': mark_safe(json.dumps(geojson))
     }
-    return render(request, 'maps/maps_object.html', isi)
+    return render(request, 'maps/maps_object_add_rumah.html', isi)
 
 @login_required(login_url='/login')
-def map_object_detail_json(request, pk):
+def maps_object_add_rumah_detail_json(request, pk):
     obj = get_object_or_404(AddRequest, pk=pk)
     detail = {
         "photo_rumah_url": obj.photo_rumah.url if obj.photo_rumah else None,
@@ -445,3 +445,39 @@ def map_object_detail_json(request, pk):
     detail.update(obj.data)
     return JsonResponse(detail)
 
+@login_required(login_url='/login')
+def maps_object_update_rumah(request, pk):
+    queryset = UpdateRequest.objects.filter(pk=pk)
+
+    features = []
+    for obj in queryset:
+        geom = json.loads(obj.geometry.geojson)
+        features.append({
+            "type": "Feature",
+            "geometry": geom,
+            "properties": {"id": obj.id}  # hanya kirim ID
+        })
+
+    geojson = {
+        "type": "FeatureCollection",
+        "features": features,
+    }
+
+    isi = {
+        'page_title': 'Maps',
+        'subjudul': f'Data kategori: {pk}',
+        'kategori': pk,
+        'data_map': mark_safe(json.dumps(geojson))
+    }
+    return render(request, 'maps/maps_object_update_rumah.html', isi)
+
+@login_required(login_url='/login')
+def maps_object_update_rumah_detail_json(request, pk):
+    obj = get_object_or_404(UpdateRequest, pk=pk)
+    detail = {
+        "photo_rumah_url": obj.photo_rumah.url if obj.photo_rumah else None,
+        "photo_perumahan_url": obj.photo_perumahan.url if obj.photo_perumahan else None,
+        "Dibuat oleh": str(obj.dibuat_oleh),
+    }
+    detail.update(obj.data)
+    return JsonResponse(detail)

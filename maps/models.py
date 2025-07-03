@@ -59,7 +59,7 @@ class GeoDataset(models.Model):
     geometry = models.GeometryField(srid=4326)   # WGS‑84 → cocok utk Leaflet
     kategori = models.CharField(max_length=100)
     properties = models.JSONField()
-    pending = models.BooleanField(default=False)
+    pending = models.BooleanField(default=True)
 
     def __str__(self):
         try:

@@ -13,8 +13,10 @@ urlpatterns = [
     path('datasets/<str:kategori>/', views.maps, name='maps-by-kategori'),
     path('detail-json/<int:pk>/', views.map_detail_json, name='map-detail-json'),
 
-    path('datasets-object/<int:pk>/', views.maps_object, name='maps_object'),
-    path('detail-json-object/<int:pk>/', views.map_object_detail_json, name='map_object_detail_json'),
+    path('datasets-object-add-rumah/<int:pk>/', views.maps_object_add_rumah, name='maps-object-add-rumah'),
+    path('detail-json-object-add-rumah/<int:pk>/', views.maps_object_add_rumah_detail_json, name='map-object-add-rumah-detail-json'),
+    path('datasets-object-update-rumah/<int:pk>/', views.maps_object_update_rumah, name='maps-object-update-rumah'),
+    path('detail-json-object-update-rumah/<int:pk>/', views.maps_object_update_rumah_detail_json, name='map-object-udpate-rumah-detail-json'),
 
     path('datasets/add-map/', views.addMap, name='add-map'),
 

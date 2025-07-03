@@ -32,8 +32,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1', 'geoportal.akhbar.cyou',]
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 GDAL_LIBRARY_PATH = os.environ.get('GDAL_LIBRARY_PATH', 'C:/OSGeo4W/bin/gdal310.dll')
 GEOS_LIBRARY_PATH = os.environ.get('GEOS_LIBRARY_PATH', 'C:/OSGeo4W/bin/geos_c.dll')

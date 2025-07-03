@@ -73,7 +73,8 @@ def unitRumah(request):
 
     if search_query:
         queryset = queryset.filter(
-            Q(rumah__nama_pemilik__icontains=search_query)
+            Q(rumah__nama_pemilik__icontains=search_query) |
+            Q(rumah__id_rumah__icontains=search_query)
         )
 
     table = GeoDatasetTable(queryset)
@@ -606,12 +607,12 @@ def viewAddRequestRumah(request):
 
     if search_query:
         queryset = queryset.filter(
-            Q(data__nama_pemilik__icontains=search_query)
+            Q(dibuat_oleh__username__icontains=search_query)
         )
 
     table = AddRequestRumahTable(queryset)
     RequestConfig(request, paginate={'per_page': 20}).configure(table)
-    placeholder_search = 'Cari Nama Pemilik...'
+    placeholder_search = 'Cari Nama Pembuat...'
     isi = {
         'placeholder_search' : placeholder_search,
         'table': table,
@@ -628,12 +629,12 @@ def viewAddRequestRumahDitolak(request):
 
     if search_query:
         queryset = queryset.filter(
-            Q(data__nama_pemilik__icontains=search_query)
+            Q(dibuat_oleh__username__icontains=search_query)
         )
 
     table = AddRequestRumahTable(queryset)
     RequestConfig(request, paginate={'per_page': 20}).configure(table)
-    placeholder_search = 'Cari Nama Pemilik...'
+    placeholder_search = 'Cari Nama Pembuat...'
     isi = {
         'placeholder_search' : placeholder_search,
         'table': table,
@@ -766,6 +767,7 @@ def updateRequestRumah(request, pk):
                 ur = UpdateRequest.objects.create(
                     id_rumah=rumah_instance,
                     photo_rumah=rumah_form.cleaned_data.get('photo_rumah'),
+                    geometry=geo_instance.geometry,
                     dibuat_oleh=request.user
                 )
 
@@ -804,12 +806,13 @@ def viewUpdateRequestRumah(request):
 
     if search_query:
         queryset = queryset.filter(
-            Q(data__nama_pemilik__icontains=search_query)
+            Q(dibuat_oleh__username__icontains=search_query) |
+            Q(dibuat_oleh_users__icontains=search_query)
         )
 
     table = UpdateRequestRumahTable(queryset)
     RequestConfig(request, paginate={'per_page': 20}).configure(table)
-    placeholder_search = 'Cari Nama Pemilik...'
+    placeholder_search = 'Cari Nama Pembuat...'
     isi = {
         'placeholder_search' : placeholder_search,
         'table': table,

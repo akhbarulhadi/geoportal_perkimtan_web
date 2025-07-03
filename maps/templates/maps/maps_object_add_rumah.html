@@ -70,7 +70,7 @@
               layer.setStyle({ weight: 4, color: "orange" });
               activeLayer = layer;
 
-              fetch(`/maps/detail-json-object/${id}/`)
+              fetch(`/maps/detail-json-object-add-rumah/${id}/`)
                 .then(res => res.json())
                 .then(data => {
                   const detail = Object.entries(data)
