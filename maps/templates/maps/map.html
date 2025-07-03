@@ -1,0 +1,118 @@
+{% extends 'template_map.html' %}
+
+{% block page_title %}
+  {{ page_title }}
+{% endblock %}
+
+{% block contents %}
+  <main class="flex-1 p-4">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <h2 class="text-2xl font-bold mb-4">{{ subjudul }}</h2>
+      <div id="map" class="w-full h-[500px] rounded-lg shadow-md"></div>
+      <div id="coordinates" class="text-sm mt-2 text-gray-600"></div>
+    </div>
+    <!-- Accordion 1 -->
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+      <input type="checkbox" id="accordion1" class="peer hidden" />
+      <label for="accordion1" class="flex items-center justify-between p-4 bg-indigo-600 text-white cursor-pointer hover:bg-indigo-700 transition-colors">
+        <span class="text-lg font-semibold">Datasets</span>
+        <svg class="w-6 h-6 transition-transform peer-checked:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </label>
+      <div class="max-h-0 overflow-hidden transition-all duration-300 peer-checked:max-h-screen">
+        <div class="p-6">
+          <!-- Tabel -->
+          {% comment %} {% load render_table from django_tables2 %}
+          {% render_table table %} {% endcomment %}
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Leaflet MarkerCluster -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
+  <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var map = L.map('map').setView([1.108, 104.05], 12);
+
+      // Peta dasar dengan beberapa opsi layer
+      var baseLayers = {
+        "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenStreetMap contributors'
+        }),
+        "Satellite": L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenTopoMap contributors'
+        })
+      };
+
+      baseLayers["OpenStreetMap"].addTo(map);
+
+      // Data GeoJSON dari Django
+      var geojsonData = {{ data_map|safe }};
+
+      // Fungsi styling dinamis (misalnya warna berdasarkan jenis kawasan)
+      function getColor(feature) {
+        if (feature.properties.kategori === "Kawasan Kumuh Berat") return "red";
+        if (feature.properties.kategori === "Kawasan Kumuh Sedang") return "orange";
+        return "blue"; // Default warna
+      }
+
+      function styleFeature(feature) {
+        return {
+          color: getColor(feature),
+          weight: 2,
+          fillOpacity: 0.5
+        };
+      }
+
+      // Fungsi untuk menampilkan popup saat fitur diklik
+      function onEachFeature(feature, layer) {
+        if (feature.properties) {
+          let detail = Object.entries(feature.properties)
+            .map(([key, value]) => `<b>${key}:</b> ${value}`)
+            .join("<br>");
+          layer.bindPopup(`<b>Detail:</b><br>${detail}`);
+        }
+
+        layer.on({
+          mouseover: (e) => e.target.setStyle({ weight: 4, color: "yellow" }),
+          mouseout: (e) => e.target.setStyle(styleFeature(feature))
+        });
+      }
+
+      // Kelompokkan titik menggunakan MarkerCluster jika ada titik (bukan garis atau poligon)
+      var markers = L.markerClusterGroup();
+      var geoLayer = L.geoJSON(geojsonData, {
+        style: styleFeature,
+        onEachFeature: onEachFeature,
+        pointToLayer: function (feature, latlng) {
+          var marker = L.marker(latlng);
+          markers.addLayer(marker);
+          return marker;
+        }
+      });
+
+      // Tambahkan data ke peta
+      if (geojsonData.features.length > 0 && geojsonData.features[0].geometry.type === "Point") {
+        map.addLayer(markers);
+      } else {
+        geoLayer.addTo(map);
+      }
+
+      // Kontrol layer
+      L.control.layers(baseLayers, { "Data GeoJSON": geoLayer }).addTo(map);
+
+      // Tampilkan koordinat saat mouse bergerak
+      map.on("mousemove", function (e) {
+        document.getElementById("coordinates").innerHTML = `Koordinat: ${e.latlng.lat.toFixed(6)}, ${e.latlng.lng.toFixed(6)}`;
+      });
+    });
+  </script>
+{% endblock %}

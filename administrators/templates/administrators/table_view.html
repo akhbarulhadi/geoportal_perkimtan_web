@@ -24,13 +24,14 @@
     </div>
   {% endif %}
 
-  <main class="flex-1 p-4">
+  <main class="flex-1 p-4 overflow-x-auto">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div class="mb-6 flex flex-wrap justify-between">
         <h2 class="text-2xl font-bold">{{ subjudul }}</h2>
         <!-- Breadcrumbs -->
         {% include 'administrators/breadcrumbs.html' %}
       </div>
+
       <div class="mb-4 flex flex-wrap justify-between">
         <button id="reloadButton" class="flex items-center gap-1 bg-gray-500 text-white py-1.5 px-3 rounded-md text-xs hover:bg-gray-400 transition duration-300 ease-in-out transform hover:scale-105">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
@@ -44,9 +45,70 @@
         </button>
       </div>
 
+      <form method="get" class="mb-4 flex gap-2 items-center">
+        <input type="text" name="search" placeholder="{{ placeholder_search }}" value="{{ request.GET.search }}" class="px-3 py-2 border border-gray-300 rounded-md w-full max-w-md bg-white text-black dark:bg-gray-800 dark:text-white" />
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-500">Cari</button>
+      </form>
+      {% if request.GET.search %}
+        <p class="text-sm text-gray-500 mb-2">
+          Menampilkan hasil untuk: <strong>{{ request.GET.search }}</strong>
+        </p>
+      {% endif %}
+
       <!-- Tabel -->
       {% load render_table from django_tables2 %}
       {% render_table table %}
+
+      <!-- Paginator -->
+      {% if table.page and table.paginator.num_pages > 0 %}
+        <div class="flex justify-between mt-4">
+          <div class="text-sm text-gray-600 mb-2 text-center">Showing {{ table.page.start_index }} to {{ table.page.end_index }} of {{ table.paginator.count }} entries</div>
+          <div>
+            <nav class="inline-flex space-x-1">
+              {% if table.page.has_previous %}
+                <a href="?page={{ table.page.previous_page_number }}" class="px-3 py-1 border rounded-md text-sm text-gray-700 hover:bg-gray-200">&laquo;</a>
+              {% else %}
+                <span class="px-3 py-1 border rounded-md text-sm text-gray-400 cursor-not-allowed">&laquo;</span>
+              {% endif %}
+
+              {% for num in table.paginator.page_range %}
+                {% if num == table.page.number %}
+                  <span class="px-3 py-1 border rounded-md text-sm bg-blue-500 text-white">{{ num }}</span>
+                {% elif num >= table.page.number|add:'-2' and num <= table.page.number|add:'2' %}
+                  <a href="?page={{ num }}" class="px-3 py-1 border rounded-md text-sm text-gray-700 hover:bg-gray-200">{{ num }}</a>
+                {% elif num == 1 or num == table.paginator.num_pages %}
+                  <a href="?page={{ num }}" class="px-3 py-1 border rounded-md text-sm text-gray-700 hover:bg-gray-200">{{ num }}</a>
+                {% elif forloop.first or forloop.last %}
+                  <span class="px-3 py-1 text-sm text-gray-400">...</span>
+                {% endif %}
+              {% endfor %}
+
+              {% if table.page.has_next %}
+                <a href="?page={{ table.page.next_page_number }}" class="px-3 py-1 border rounded-md text-sm text-gray-700 hover:bg-gray-200">&raquo;</a>
+              {% else %}
+                <span class="px-3 py-1 border rounded-md text-sm text-gray-400 cursor-not-allowed">&raquo;</span>
+              {% endif %}
+            </nav>
+          </div>
+        </div>
+      {% endif %}
+      <!-- Modal -->
+      <div id="deleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div class="bg-white rounded-lg p-6 max-w-sm w-full shadow-lg">
+          <h2 class="text-lg font-semibold mb-4">Konfirmasi Hapus</h2>
+          <p class="mt-2 mb-1">Apakah kamu yakin ingin menghapus data ini?</p>
+          <p class="text-sm mb-6 text-gray-400">Jika data ini terhubung ke data lain maka juga akan di hapus.</p>
+
+          <!-- Form konfirmasi -->
+          <form id="deleteForm" method="post">
+            {% csrf_token %}
+            <div class="flex justify-end space-x-2">
+              <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Batal</button>
+              <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Hapus</button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   </main>
 
@@ -59,5 +121,49 @@
         }
       }, 5000)
     })
+  </script>
+
+  <script>
+    function openModal(pk) {
+      const modal = document.getElementById('deleteModal')
+      const form = document.getElementById('deleteForm')
+      const url = `/pp/delete-rumah/${pk}/`
+    
+      form.action = url
+      modal.classList.remove('hidden')
+    }
+    
+    function closeModal() {
+      document.getElementById('deleteModal').classList.add('hidden')
+    }
+  </script>
+
+  <script>
+    function openModalDelPerumahan(pk) {
+      const modal = document.getElementById('deleteModal')
+      const form = document.getElementById('deleteForm')
+      const url = `/pp/delete-perumahan/${pk}/`
+    
+      form.action = url
+      modal.classList.remove('hidden')
+    }
+    
+    function closeModal() {
+      document.getElementById('deleteModal').classList.add('hidden')
+    }
+  </script>
+  <script>
+    function openModalDelRusun(pk) {
+      const modal = document.getElementById('deleteModal')
+      const form = document.getElementById('deleteForm')
+      const url = `/pp/delete-rusun/${pk}/`
+    
+      form.action = url
+      modal.classList.remove('hidden')
+    }
+    
+    function closeModal() {
+      document.getElementById('deleteModal').classList.add('hidden')
+    }
   </script>
 {% endblock %}

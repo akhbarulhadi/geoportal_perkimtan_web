@@ -1,0 +1,114 @@
+{% extends 'template_map.html' %}
+{% load static %}
+
+{% block page_title %}
+  {{ page_title }}
+{% endblock %}
+
+{% block contents %}
+  <main class="fixed inset-0">
+    <div id="info-panel" class="fixed top-0 right-[-300px] w-[300px] h-full bg-white bg-opacity-95 shadow-lg transition-transform duration-300 flex flex-col p-5 z-[1500]">
+      <div class="flex justify-between items-center border-b pb-3 mb-3">
+        <h3 class="text-lg font-semibold">Detail:</h3>
+        <button id="close-info" class="text-xl">×</button>
+      </div>
+      <div id="info-content" class="flex-grow overflow-y-auto pr-2">Klik pada salah satu area atau marker di peta untuk melihat detail</div>
+    </div>
+
+    <div id="map" class="w-full h-full pb-10"></div>
+
+    <div id="coordinates" class="fixed bottom-0 left-0 w-full bg-white bg-opacity-90 p-3 text-sm text-center text-gray-800 shadow-md border-t z-[1000]">Koordinat:</div>
+  </main>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var map = L.map('map').setView([1.108, 104.05], 12)
+    
+      var baseLayers = {
+        OpenStreetMap: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenStreetMap contributors'
+        }),
+        Satellite: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenTopoMap contributors'
+        })
+      }
+    
+      baseLayers['OpenStreetMap'].addTo(map)
+    
+      var geojsonData = JSON.parse('{{ data_map|escapejs }}')
+    
+      function getColor(feature) {
+        if (feature.properties.kategori === 'Kawasan Kumuh Berat') return 'red'
+        if (feature.properties.kategori === 'Kawasan Kumuh Sedang') return 'orange'
+        return 'blue'
+      }
+    
+      function styleFeature(feature) {
+        return {
+          color: getColor(feature),
+          weight: 2,
+          fillOpacity: 0.5
+        }
+      }
+    
+      function onEachFeature(feature, layer) {
+        if (feature.properties) {
+          layer.on('click', function () {
+            let detail = Object.entries(feature.properties)
+              .map(
+                ([key, value]) => `
+                <div class="py-1"><span class="font-medium">${key}:</span> ${value}</div>`
+              )
+              .join('')
+            document.getElementById('info-content').innerHTML = `
+                <div class="space-y-2">
+                  <h4 class="text-lg font-semibold border-b pb-2">${feature.properties.nama || feature.properties.block || 'Data:'}</h4>
+                  ${detail}
+                </div>`
+            openPanel()
+          })
+        }
+    
+        // Simpan warna asli sebelum hover
+        let originalStyle = { ...layer.options }
+    
+        layer.on({
+          mouseover: (e) => e.target.setStyle({ weight: 4, color: 'yellow' }),
+          mouseout: (e) => e.target.setStyle(originalStyle)
+        })
+      }
+    
+      var geoLayer = L.geoJSON(geojsonData, {
+        style: styleFeature,
+        onEachFeature: onEachFeature
+      }).addTo(map)
+    
+      var layerControl = L.control.layers(baseLayers, { 'Data GeoJSON': geoLayer }).addTo(map)
+    
+      function openPanel() {
+        const panel = document.getElementById('info-panel')
+        const controlLayers = document.querySelector('.leaflet-control-layers')
+        panel.classList.remove('right-[-300px]')
+        panel.classList.add('right-0')
+        if (controlLayers) controlLayers.style.right = '320px'
+      }
+    
+      function closePanel() {
+        const panel = document.getElementById('info-panel')
+        const controlLayers = document.querySelector('.leaflet-control-layers')
+        panel.classList.remove('right-0')
+        panel.classList.add('right-[-300px]')
+        if (controlLayers) controlLayers.style.right = '10px'
+      }
+    
+      document.getElementById('close-info').addEventListener('click', closePanel)
+    
+      map.on('mousemove', function (e) {
+        document.getElementById('coordinates').innerHTML = `Koordinat: ${e.latlng.lat.toFixed(6)}, ${e.latlng.lng.toFixed(6)}`
+      })
+    })
+  </script>
+{% endblock %}

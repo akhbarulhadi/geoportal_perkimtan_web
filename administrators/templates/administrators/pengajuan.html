@@ -1,0 +1,107 @@
+{% extends 'template.html' %}
+
+{% block page_title %}
+  {{ page_title }}
+{% endblock %}
+
+{% block contents %}
+  {% if messages %}
+    <div id="messages" class="fixed top-16 right-5 z-50 space-y-4">
+      {% for message in messages %}
+        <div class="flex items-center p-4 mb-4 text-sm text-indigo-700 bg-indigo-100 rounded-lg shadow-md dark:bg-indigo-100 dark:text-indigo-700" role="alert">
+          <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 00-2 0v4a1 1 0 001 1h2a1 1 0 100-2h-1V7z" clip-rule="evenodd"></path>
+          </svg>
+          <div>{{ message }}</div>
+          <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-indigo-100 text-indigo-500 rounded-lg focus:ring-2 focus:ring-indigo-400 p-1.5 hover:bg-indigo-200 inline-flex h-8 w-8 dark:bg-indigo-200 dark:text-indigo-600 dark:hover:bg-indigo-300" aria-label="Close" onclick="this.parentElement.style.display='none';">
+            <span class="sr-only">Close</span>
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+            </svg>
+          </button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <main class="flex-1 p-4">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="flex flex-wrap justify-between">
+        <h2 class="text-2xl font-bold mb-4">{{ subjudul }}</h2>
+        <div class="flex group">
+          <!-- Pengajuan Rumah button -->
+          <div class="relative">
+            <a href="{% url 'administrators:request-add-rumah' %}" type="button" class="flex justify-center items-center w-[52px] h-[52px] text-gray-500 hover:text-indigo-500 bg-white rounded-full border border-gray-200 dark:border-gray-600 shadow-xs dark:hover:text-white dark:text-gray-400 hover:bg-gray-50 dark:bg-gray-700 dark:hover:bg-gray-600 focus:ring-4 focus:ring-gray-300 focus:outline-none dark:focus:ring-gray-400 peer">
+              <svg xmlns="http://www.w3.org/2000/svg" width="30.667" height="30.667" fill="currentColor">
+                <path d="M15.262 1.201a.583.609 0 0 0-.338.127l-13.4 10.92a.583.61 0 0 0 .716.961l.807-.656V28.55a.583.609 0 0 0 .584.607h8.058a.583.609 0 0 0 .19 0h6.8a.583.609 0 0 0 .192 0h8.065a.583.609 0 0 0 .582-.607v-1.487l-.04.01a1.49 1.49 0 0 1-.222.04c-.111.007-.223.015-.334.013-.134 0-.267 0-.4-.002a9.602 9.602 0 0 1-.17-.006v.822h-6.99v-11.56h-8.157v11.56H4.213v-16.34l11.07-9.02 11.069 9.02v13.434c.013 0 .026 0 .039-.002a19.186 19.186 0 0 1 .943-.037c.061 0 .123 0 .184.002V12.553l.806.656a.583.61 0 1 0 .717-.961l-4.436-3.615V4.209H21.11v1.574l-5.468-4.455a.583.609 0 0 0-.38-.127Zm7.011 4.227h1.166v2.256l-1.166-.952Zm-9.904 12.17h5.826V27.94H12.37z" />
+                <path d="m23.067 30.014-1.14-.619-.631-1.218-.63-1.22-.001-1.29v-1.292l.631-1.222.632-1.223 1.222-.632 1.222-.632h1.291l1.292-.001 1.222.632 1.222.631.633 1.222.632 1.222v2.583l-.631 1.223-.632 1.222-1.222.632-1.222.633-1.374-.016-1.375-.017zm3.015-2.89v-1.042h2.083v-.834H26.08v-2.083h-.834v2.084h-2.082v.834h1.042l1.041-.001v2.083h.834z" />
+              </svg>
+
+              <span class="sr-only">Pengajuan Rumah</span>
+            </a>
+            <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs dark:bg-gray-700 opacity-0 invisible peer-hover:opacity-100 peer-hover:visible transition-opacity duration-300">
+              Pengajuan Rumah<div class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-l-transparent border-r-transparent border-b-gray-900 dark:border-b-gray-700"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card -->
+      <div class="grid grid-cols-1 gap-2 px-2 mt-8 sm:grid-cols-2 sm:gap-4 sm:px-4 lg:grid-cols-4 lg:px-8">
+        <a href="{% url 'administrators:view-request-add-rumah' %}" class="group relative cursor-pointer bg-white border rounded-sm overflow-hidden shadow transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
+          <span class="absolute top-15 z-0 h-20 w-20 transition-all duration-300 group-hover:scale-[10]"></span>
+          <div class="relative z-10 flex items-center">
+            <div class="p-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-10 w-10 sm:h-12 sm:w-12 text-black">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+              </svg>
+            </div>
+            <div class="px-4 text-gray-700">
+              <h3 class="text-xs sm:text-sm tracking-wider">Pengajuan Rumah Baru</h3>
+              <p class="text-2xl sm:text-3xl">{{ pengajuan_rumah_baru }}</p>
+            </div>
+          </div>
+        </a>
+        <a href="{% url 'administrators:view-request-add-rumah-ditolak' %}" class="group relative cursor-pointer bg-white border rounded-sm overflow-hidden shadow transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
+          <span class="absolute top-15 z-0 h-20 w-20 transition-all duration-300 group-hover:scale-[10]"></span>
+          <div class="relative z-10 flex items-center">
+            <div class="p-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-10 w-10 sm:h-12 sm:w-12 text-black">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+              </svg>
+            </div>
+            <div class="px-4 text-gray-700">
+              <h3 class="text-xs sm:text-sm tracking-wider">Pengajuan Rumah Ditolak</h3>
+              <p class="text-2xl sm:text-3xl">{{ pengajuan_rumah_ditolak }}</p>
+            </div>
+          </div>
+        </a>
+        <a href="{% url 'administrators:view-request-update-rumah' %}" class="group relative cursor-pointer bg-white border rounded-sm overflow-hidden shadow transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
+          <span class="absolute top-15 z-0 h-20 w-20 transition-all duration-300 group-hover:scale-[10]"></span>
+          <div class="relative z-10 flex items-center">
+            <div class="p-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-10 w-10 sm:h-12 sm:w-12 text-black">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+              </svg>
+            </div>
+            <div class="px-4 text-gray-700">
+              <h3 class="text-xs sm:text-sm tracking-wider">Perubahan Unit Rumah</h3>
+              <p class="text-2xl sm:text-3xl">{{ perubahan_unit_rumah }}</p>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      setTimeout(function () {
+        var messages = document.getElementById('messages')
+        if (messages) {
+          messages.style.display = 'none'
+        }
+      }, 5000)
+    })
+  </script>
+{% endblock %}

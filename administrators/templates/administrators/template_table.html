@@ -1,30 +1,30 @@
 {% load django_tables2 %}
 
-<div class="w-full lg:max-w-4xl">
+<div class="w-full overflow-x-auto">
   <div class="relative border">
     <!-- Tabel -->
-    <table id="example" class="display nowrap w-full text-sm text-left text-gray-500">
-      <thead class="bg-gray-200">
-        <tr>
-          {% for column in table.columns %}
-            <th class="px-4 py-2 whitespace-nowrap">{{ column.header }}</th>
-          {% endfor %}
-        </tr>
-      </thead>
-      <tbody>
-        {% for row in table.paginated_rows %}
+    {% if table.paginated_rows %}
+      <table id="example" class="display nowrap w-full text-sm text-left text-gray-500">
+        <thead class="bg-gray-200">
           <tr>
-            {% for column, cell in row.items %}
-              <td class="border px-4 py-2 whitespace-nowrap">{{ cell }}</td>
+            {% for column in table.columns %}
+              <th class="px-4 py-2 whitespace-nowrap">{{ column.header }}</th>
             {% endfor %}
           </tr>
-        {% empty %}
-          <tr>
-            <td colspan="{{ table.columns|length }}" class="border px-4 py-2 text-center">No data available</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {% for row in table.paginated_rows %}
+            <tr>
+              {% for column, cell in row.items %}
+                <td class="border px-4 py-2 whitespace-nowrap">{{ cell }}</td>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="text-center text-gray-400 italic py-8 bg-gray-50 rounded-md">No data available</div>
+    {% endif %}
   </div>
 </div>
 
@@ -38,7 +38,10 @@
     $('#example').DataTable({
       scrollX: true, // Aktifkan scroll horizontal
       scrollCollapse: true, // Optimalkan jika tabel lebih kecil
-      autoWidth: false // Mencegah ukuran tabel membengkak
+      autoWidth: false, // Mencegah ukuran tabel membengkak
+      paging: false, // Nonaktifkan pagination client-side
+      searching: false, // Nonaktifkan search client-side
+      info: false // Nonaktifkan info ("Showing 1 to 10...")
     })
   })
 </script>
@@ -48,36 +51,3 @@
     location.reload()
   })
 </script>
-
-{% comment %} <div class="w-full lg:max-w-4xl">
-  <!-- Wrapper untuk scroll horizontal -->
-  <div class="relative overflow-x-auto border rounded-lg shadow-md">
-    <!-- Tabel -->
-    <table id="example" class="table-auto w-full text-sm text-left text-gray-500 dark:text-gray-400">
-      <!-- Bungkus thead dan tbody dalam div -->
-      <div class="overflow-x-auto w-full">
-        <thead class="">
-          <tr>
-            {% for column in table.columns %}
-              <th class="px-4 py-2 whitespace-nowrap min-w-[150px]">{{ column.header }}</th>
-            {% endfor %}
-          </tr>
-        </thead>
-        <tbody>
-          {% for row in table.paginated_rows %}
-            <tr>
-              {% for column, cell in row.items %}
-                <td class="border px-4 py-2 whitespace-nowrap min-w-[150px]">{{ cell }}</td>
-              {% endfor %}
-            </tr>
-          {% empty %}
-            <tr>
-              <td colspan="{{ table.columns|length }}" class="border px-4 py-2 text-center">No data available</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </div>
-    </table>
-  </div>
-</div>
-{% endcomment %}

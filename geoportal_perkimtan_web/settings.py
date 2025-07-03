@@ -28,7 +28,10 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1',]
+ALLOWED_HOSTS = ['127.0.0.1', 'geoportal.akhbar.cyou',]
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 GDAL_LIBRARY_PATH = os.environ.get('GDAL_LIBRARY_PATH', 'C:/OSGeo4W/bin/gdal310.dll')
 GEOS_LIBRARY_PATH = os.environ.get('GEOS_LIBRARY_PATH', 'C:/OSGeo4W/bin/geos_c.dll')
@@ -50,7 +53,21 @@ INSTALLED_APPS = [
     'gis_data',
     'maps',
     'django_tables2',
+    # 'leaflet',
 ]
+
+LEAFLET_CONFIG = {
+    'DEFAULT_CENTER': (-6.2, 106.8),  # Sesuaikan dengan lokasi default Anda
+    'DEFAULT_ZOOM': 12,
+    'MIN_ZOOM': 3,
+    'MAX_ZOOM': 18,
+    'SCALE': 'both',
+    'ATTRIBUTION_PREFIX': 'Powered by Akh-Gis',
+    'SPATIAL_EXTENT': (95.0, -11.0, 141.0, 6.0),  # Contoh untuk Indonesia
+    'forms': {
+        'auto-include': True,
+    }
+}
 
 SPATIAL_REFERENCE_SYSTEM = 4326
 

@@ -1,0 +1,112 @@
+{% extends 'template_map.html' %}
+
+{% block page_title %}
+  {{ page_title }}
+{% endblock %}
+
+{% block contents %}
+  <main class="fixed inset-0">
+    <!-- Panel Detail -->
+    <div id="info-panel" class="fixed top-0 right-[-300px] w-[300px] h-full bg-white shadow transition-all duration-300 p-5 z-[1500] flex flex-col">
+      <div class="flex justify-between border-b pb-3 mb-3 flex-shrink-0">
+        <h3 class="text-lg font-semibold">Detail:</h3>
+        <button id="close-info" class="text-xl">×</button>
+      </div>
+      <div id="info-content" class="overflow-y-auto text-sm flex-1 min-h-0">Klik area di peta</div>
+    </div>
+
+    <!-- Peta -->
+    <div id="map" class="w-full h-full"></div>
+
+    <!-- Koordinat -->
+    <div id="coordinates" class="fixed bottom-0 left-0 w-full bg-white p-2 text-center text-gray-800 border-t shadow text-sm z-[1000]">Koordinat:</div>
+  </main>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      let activeLayer = null;
+
+      const map = L.map('map').setView([1.108, 104.05], 12);
+    
+      const baseLayers = {
+        "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map),
+        "Satellite": L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenTopoMap contributors'
+        })
+      };
+    
+      const geojsonData = {{ data_map|safe }};
+      console.log(geojsonData)
+    
+      const geoLayer = L.geoJSON(geojsonData, {
+        style: { color: "blue", weight: 2, fillOpacity: 0.5 },
+        onEachFeature: (feature, layer) => {
+          const originalStyle = { ...layer.options };
+          const id = feature.properties.id;
+
+          layer._originalStyle = originalStyle;
+
+          layer.on({
+            mouseover: e => {
+              if (e.target !== activeLayer) {
+                e.target.setStyle({ weight: 4, color: "yellow" });
+              }
+            },
+            mouseout: e => {
+              if (e.target !== activeLayer) {
+                e.target.setStyle(e.target._originalStyle);
+              }
+            },
+            click: () => {
+              if (activeLayer && activeLayer !== layer) {
+                activeLayer.setStyle(activeLayer._originalStyle);
+              }
+  
+              layer.setStyle({ weight: 4, color: "orange" });
+              activeLayer = layer;
+
+              fetch(`/maps/detail-json/${id}/`)
+                .then(res => res.json())
+                .then(data => {
+                  const detail = Object.entries(data)
+                    .map(([k, v]) => `<div class="py-1"><strong>${k}:</strong> ${v ?? '-'}</div>`)
+                    .join("");
+                  document.getElementById("info-content").innerHTML = `<div class="space-y-2">${detail}</div>`;
+                  panel.classList.replace('right-[-300px]', 'right-0');
+                  controlLayers.style.right = '320px';
+                });
+            }
+          });
+        }
+      }).addTo(map);
+    
+      L.control.layers(baseLayers, { "GeoJSON": geoLayer }).addTo(map);
+    
+      const panel = document.getElementById('info-panel');
+      const controlLayers = document.querySelector('.leaflet-control-layers');
+      const closeBtn = document.getElementById('close-info');
+
+      if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+          panel.classList.replace('right-0', 'right-[-300px]');
+          if (controlLayers) controlLayers.style.right = '10px';
+          
+          if (activeLayer) {
+            activeLayer.setStyle(activeLayer._originalStyle);
+            activeLayer = null;
+          }
+        });
+      }
+    
+      map.on("mousemove", e => {
+        document.getElementById("coordinates").textContent =
+          `Koordinat: ${e.latlng.lat.toFixed(6)}, ${e.latlng.lng.toFixed(6)}`;
+      });
+    });
+</script>
+{% endblock %}

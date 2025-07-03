@@ -28,4 +28,12 @@ urlpatterns = [
     path('', include('administrators.urls', namespace='administrators')),
     path('maps/', include('maps.urls', namespace='maps')),
     path('logout/', views.user_logout, name='logout'),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path('profile/', views.UserProfileEditView.as_view(), name='profile'),
+    path('password-change/', views.UserChangePasswordView.as_view(), name='password-change'),
+
+] 
+
+# + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+if settings.DEBUG:  # Hanya untuk mode DEBUG
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
