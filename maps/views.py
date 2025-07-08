@@ -1,56 +1,59 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from .models import GarisPantai, KawasanKumuh, JalanLingkungan, Maps, DataMaps, FieldMaps
-from django.contrib.gis.serializers import geojson
-from gis_data.models import Rumah, Kecamatan, Kelurahan, AddRequest, UpdateRequest
-from administrators.table import RumahTable
-from .forms import mapsForm
+from gis_data.models import Rumah, AddRequest, UpdateRequest, Kecamatan
 from django.contrib import messages
-from django.conf import settings
 import json
-import os
-import geopandas as gpd
 from .forms import GeoJSONUploadForm, GeoJSONUploadUnitRumahForm
 from .models import GeoDataset, UploadProgress
 from django.contrib.gis.geos import GEOSGeometry
-from django.db.models import F
-from django.core.serializers import serialize
 from django.utils.safestring import mark_safe
 from django.http import JsonResponse
 import threading
 from uuid import uuid4
 from types import SimpleNamespace
 from django.contrib.auth.models import User
-from administrators.logger import log_action  # atau lokasi file log kamu
+from administrators.logger import log_action
 from django.contrib.admin.models import ADDITION
+from django.db.models import Count
 
 # Create your views here.
 
 @login_required(login_url='/login')
-def pp(request):
-
-    isi = {
-	'page_title': 'Peta Permukiman',
-    'subjudul': 'Peta Permukiman',
-    }
-    return render(request,'maps/index.html', isi)
-
-@login_required(login_url='/login')
 def datasets(request):
+    permission_admin = ['admin',]
+    admin = request.user.groups.filter(name__in=permission_admin).exists()
+    permission_operator = ['operator',]
+    operator = request.user.groups.filter(name__in=permission_operator).exists()
+
     maps = GeoDataset.objects.exclude(kategori='Unit Rumah').values('kategori').distinct()
     maps_unit_rumah = GeoDataset.objects.filter(kategori='Unit Rumah').values('kategori').distinct()
+    jumlah_unit_rumah = GeoDataset.objects.filter(kategori="Unit Rumah").count()
+
+    kecamatans = Kecamatan.objects.values_list('kecamatan', flat=True)
+    counts = GeoDataset.objects.values('nama_dataset').annotate(jumlah=Count('id'))
+    jumlah_dict = {item['nama_dataset']: item['jumlah'] for item in counts}
+    kecamatan = []
+    for nama in kecamatans:
+        kecamatan.append({
+            'kecamatan': nama,
+            'jumlah_data_rumah_perfilter': jumlah_dict.get(nama, 0)
+        })
 
     isi = {
-	'page_title': 'Maps',
-    'subjudul': 'Maps',
-    'maps': maps,
-    'maps_unit_rumah': maps_unit_rumah,
-    'icon_button_map': 'addmap',
-    'icon_button_house': 'addhouse',
-    'button_map': 'Tambah Map',
-    'button_house': 'Tambah House',
+	    'page_title': 'Maps',
+        'subjudul': 'Maps',
+        'maps': maps,
+        'maps_unit_rumah': maps_unit_rumah,
+        'jumlah_unit_rumah': jumlah_unit_rumah,
+        'kecamatan': kecamatan,
+        'icon_button_map': 'addmap',
+        'icon_button_house': 'addhouse',
+        'button_map': 'Tambah Map',
+        'button_house': 'Tambah House',
+        'admin': admin,
+        'operator': operator,
     }
-    return render(request,'maps/index2.html', isi)
+    return render(request,'maps/index.html', isi)
 
 @login_required(login_url='/login')
 def maps(request, kategori):
@@ -150,27 +153,6 @@ def map_detail_json_unit_rumah(request, pk):
     return JsonResponse(detail)
 
 @login_required(login_url='/login')
-def addMap(request):
-    post_form = mapsForm(request.POST, request.FILES)
-    if request.method == 'POST':
-      if post_form.is_valid():
-        try:
-          post_form.save()
-          messages.success(request, 'Berhasil Menambahkan Data Map!')
-          post_form = mapsForm()
-        except Exception as e:
-            messages.error(request, f'Gagal Untuk Menambahkan Data Map: {str(e)}')
-      else:
-          messages.error(request, 'Gagal Untuk Menambahkan Data Map. Periksa form untuk errors.')
-    isi = {
-	'page_title': 'Tambah Map',
-    'subjudul': 'Tambah Map',
-    'post_form': post_form,
-    'button': 'Simpan',
-    }
-    return render(request,'administrators/forms.html', isi)
-
-@login_required(login_url='/')
 def deleteMaps(request, kategori):
     if request.method == 'POST':
         try:
@@ -185,93 +167,6 @@ def deleteMaps(request, kategori):
             messages.error(request, f'Gagal menghapus data: {str(e)}')
 
     return redirect(request.META.get('HTTP_REFERER', '/'))
-
-@login_required(login_url='/login')
-def garis_pantai_view(request):
-    garis_pantai = geojson.Serializer().serialize(GarisPantai.objects.all())
-
-    isi = {
-        'page_title': 'Batas Garis Pantai Kota Batam',
-        'subjudul': 'Batas Garis Pantai Kota Batam',
-        'data_map': garis_pantai,
-
-    }
-    return render(request, 'maps/map3.html', isi)
-
-@login_required(login_url='/login')
-def kawasan_kumuh_view(request):
-    kawasan_kumuh = geojson.Serializer().serialize(KawasanKumuh.objects.all())
-
-    isi = {
-        'page_title': 'Kawasan Kumuh Kota Batam',
-        'subjudul': 'Kawasan Kumuh Kota Batam',
-        'data_map': kawasan_kumuh,
-
-    }
-    return render(request, 'maps/map3.html', isi)
-
-@login_required(login_url='/login')
-def jalan_lingkungan_view(request):
-    jalan_lingkungan = geojson.Serializer().serialize(JalanLingkungan.objects.all())
-
-    isi = {
-        'page_title': 'Jalan Lingkungan Kota Batam',
-        'subjudul': 'Jalan Lingkungan Kota Batam',
-        'data_map': jalan_lingkungan,
-
-    }
-    return render(request, 'maps/map3.html', isi)
-
-@login_required(login_url='/login')
-def rumah_view(request):
-    rumah = geojson.Serializer().serialize(
-        Rumah.objects.exclude(lokasi_rumah__isnull=True), 
-        geometry_field="lokasi_rumah",
-    )
-    queryset = Rumah.objects.all()
-    table = RumahTable(queryset)
-    isi = {
-        'page_title': 'Unit Rumah Kota Batam',
-        'subjudul': 'Unit Rumah Kota Batam',
-        'data_map': rumah,
-        'table': table,
-
-    }
-    return render(request, 'maps/map3.html', isi)
-
-@login_required(login_url='/login')
-def peta_geojson(request):
-    geojson_path = os.path.join(settings.BASE_DIR, 'data', 'LUBUK_BAJA.geojson')
-    
-    with open(geojson_path, encoding='utf-8') as f:
-        geojson_data = json.load(f)
-
-    context = {
-        'page_title': 'Peta Dinamis GeoJSON',
-        'data_map': json.dumps(geojson_data),
-    }
-    return render(request, 'maps/map_geojson.html', context)
-
-# @login_required(login_url='/login')
-# def peta_geojson(request):
-#     # Path ke file SHP
-#     shp_path = os.path.join(settings.BASE_DIR, 'data/Kota_Batam', 'Kota_Batam.shp')
-    
-#     # Baca shapefile pakai GeoPandas
-#     gdf = gpd.read_file(shp_path)
-
-#     # Pastikan CRS-nya WGS84 (Leaflet pakai EPSG:4326)
-#     if gdf.crs != "EPSG:4326":
-#         gdf = gdf.to_crs(epsg=4326)
-
-#     # Konversi ke GeoJSON
-#     geojson_data = gdf.to_json()
-
-#     context = {
-#         'page_title': 'Peta Dinamis dari SHP',
-#         'data_map': geojson_data,  # Tidak perlu json.dumps lagi, karena sudah string JSON
-#     }
-#     return render(request, 'maps/map_geojson.html', context)
 
 def remove_z(geometry):
     geom_type = geometry.get("type")
@@ -293,7 +188,23 @@ def remove_z(geometry):
     geometry["coordinates"] = coords
     return geometry
 
+def check_progress(request, task_id):
+    try:
+        task = UploadProgress.objects.get(task_id=task_id)
+        return JsonResponse({
+            "progress": task.progress,
+            "status": task.status
+        })
+    except UploadProgress.DoesNotExist:
+        return JsonResponse({"error": "Task not found"}, status=404)
+
+@login_required(login_url='/login')
 def upload_geojson(request):
+    permission_admin = ['admin',]
+    admin = request.user.groups.filter(name__in=permission_admin).exists()
+    permission_operator = ['operator',]
+    operator = request.user.groups.filter(name__in=permission_operator).exists()
+
     if request.method == 'POST':
         form = GeoJSONUploadForm(request.POST, request.FILES)
         if form.is_valid():
@@ -340,22 +251,19 @@ def upload_geojson(request):
         'page_title': 'Upload',
         'subjudul': 'Upload',
         'kategori_list': kategori_list,
-        'upload_url_name': 'maps:upload-geojson'
+        'upload_url_name': 'maps:upload-geojson',
+        'admin': admin,
+        'operator': operator,
     }
     return render(request, "maps/upload_geojson.html", isi)
 
-def check_progress(request, task_id):
-    try:
-        task = UploadProgress.objects.get(task_id=task_id)
-        return JsonResponse({
-            "progress": task.progress,
-            "status": task.status
-        })
-    except UploadProgress.DoesNotExist:
-        return JsonResponse({"error": "Task not found"}, status=404)
-
 @login_required(login_url='/login')
 def upload_geojson_unit_rumah(request):
+    permission_admin = ['admin',]
+    admin = request.user.groups.filter(name__in=permission_admin).exists()
+    permission_operator = ['operator',]
+    operator = request.user.groups.filter(name__in=permission_operator).exists()
+
     if request.method == 'POST':
         form = GeoJSONUploadUnitRumahForm(request.POST, request.FILES)
         if form.is_valid():
@@ -364,6 +272,7 @@ def upload_geojson_unit_rumah(request):
 
             geo_file = form.cleaned_data["file"]
             geojson = json.load(geo_file)
+            nama_dataset = form.cleaned_data["nama_dataset"]
 
             user_id = request.user.id
 
@@ -377,10 +286,13 @@ def upload_geojson_unit_rumah(request):
                         props = feat.get("properties", {})
 
                         geo_obj = GeoDataset.objects.create(
-                            nama_dataset='1',
+                            nama_dataset=nama_dataset,
                             kategori='Unit Rumah',
                             geometry=geom,
                             properties=props
+                        )
+                        Rumah.objects.create(
+                            geo=geo_obj
                         )
                         log_action(SimpleNamespace(user=user), geo_obj, ADDITION, f'Menambahkan Data: {geo_obj}')
                         UploadProgress.objects.filter(task_id=task_id).update(progress=int((i+1)/total * 100))
@@ -388,25 +300,24 @@ def upload_geojson_unit_rumah(request):
                 except Exception:
                     UploadProgress.objects.filter(task_id=task_id).update(status="failed")
 
-            threading.Thread(target=process_data).start()
+            threading.Thread(target=process_data, args=(user_id,)).start()
 
             return JsonResponse({"task_id": task_id})
         return JsonResponse({"error": "Form tidak valid"}, status=400)
     
     form = GeoJSONUploadUnitRumahForm()
+    item_menu_filter = Kecamatan.objects.order_by().values_list('kecamatan', flat=True).distinct()
 
     isi = {
         'form': form,
         'page_title': 'Upload Unit Rumah',
         'subjudul': 'Upload Unit Rumah',
-        'upload_url_name': 'maps:upload-unit-rumah-geojson'
+        'upload_url_name': 'maps:upload-unit-rumah-geojson',
+        'item_menu_filter': item_menu_filter,
+        'admin': admin,
+        'operator': operator,
     }
     return render(request, "maps/upload_geojson.html", isi)
-
-
-
-
-
 
 @login_required(login_url='/login')
 def maps_object_add_rumah(request, pk):

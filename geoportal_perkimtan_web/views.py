@@ -54,9 +54,15 @@ class UserProfileEditView(LoginRequiredMixin, UpdateView):
 
     def get_object(self):
         return self.request.user
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        
+        # Pengecekan grup user
+        user = self.request.user
+        context['admin'] = user.groups.filter(name='admin').exists()
+        context['operator'] = user.groups.filter(name='operator').exists()
+
         context['page_title'] = 'Profile'
         context['subjudul'] = 'Profile'
         context['button'] = 'Save'
@@ -69,6 +75,7 @@ class UserProfileEditView(LoginRequiredMixin, UpdateView):
 
     def form_invalid(self, form):
         return super().form_invalid(form)
+
     
 class UserChangePasswordView(LoginRequiredMixin, PasswordChangeView):
     form_class = CustomPasswordChangeForm
@@ -77,6 +84,11 @@ class UserChangePasswordView(LoginRequiredMixin, PasswordChangeView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        user = self.request.user
+        context['admin'] = user.groups.filter(name='admin').exists()
+        context['operator'] = user.groups.filter(name='operator').exists()
+
         context['page_title'] = 'Change Password'
         context['subjudul'] = 'Change Password'
         context['button'] = 'Save'

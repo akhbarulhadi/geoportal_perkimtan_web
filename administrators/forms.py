@@ -1,5 +1,5 @@
 from django import forms
-from gis_data.models import Rumah, Kecamatan, Kelurahan, Perumahan, Fasos, RumahSusun, AddRequest, UpdateRequest
+from gis_data.models import Rumah, Kecamatan, Kelurahan, Perumahan, RumahSusun, AddRequest
 # from leaflet.forms.widgets import LeafletWidget
 from django.contrib.gis import forms as geo_forms
 from maps.models import GeoDataset
@@ -38,7 +38,7 @@ class rumahForm(forms.ModelForm):
 
     class Meta:
         model = Rumah
-        fields = ['photo_rumah', 'nama_pemilik', 'alamat_rumah', 'jumlah_kk', 'nilai_keselamatan', 'nilai_kesehatan', 'nilai_komponen', 'nama_perumahan', 'status_rumah', 'status_luas', 'rumah_sewa']
+        fields = ['photo_rumah', 'nama_pemilik', 'alamat_rumah', 'jumlah_kk', 'nilai_keselamatan', 'nilai_kesehatan', 'nilai_komponen', 'nama_perumahan', 'status_rumah', 'status_luas', 'rumah_sewa', 'dibuat_oleh_users']
         labels = {
             'photo_rumah': 'Photo Rumah',
             'nama_pemilik': 'Nama Pemilik',
@@ -50,7 +50,8 @@ class rumahForm(forms.ModelForm):
             'nama_perumahan': 'Nama Perumahan',
             'status_rumah': 'Status Rumah',
             'status_luas': 'Status Luas',
-            'rumah_sewa': 'Apakah Ini Rumah Sewa?'
+            'rumah_sewa': 'Apakah Ini Rumah Sewa?',
+            'dibuat_oleh_users': 'Email Pemilik',
 		}
         widgets = {
             'photo_rumah': forms.ClearableFileInput(attrs={
@@ -88,7 +89,6 @@ class rumahForm(forms.ModelForm):
                 'placeholder': '',
                 'id': 'nilai_komponen',
             }),
-        
             'status_rumah': forms.Select(attrs={
                 'class': 'select2',
                 'placeholder': '',
@@ -103,6 +103,11 @@ class rumahForm(forms.ModelForm):
                 'class': 'checked:border-indigo-500 h-5 w-5',
                 'placeholder': '',
                 'id': 'rumah_sewa',
+            }),
+            'dibuat_oleh_users': forms.TextInput(attrs={
+                'class': 'shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full p-2.5',
+                'placeholder': '',
+                'id': 'dibuat_oleh_users',
             }),
             # 'lokasi_rumah': forms.TextInput(attrs={
             #     'class': 'shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full p-2.5',
@@ -236,28 +241,6 @@ class kecamatanForm(forms.ModelForm):
                 'class': 'shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full p-2.5',
                 'placeholder': '',
                 'id': 'nama_perumahan',
-            })
-        }
-
-class fasosForm(forms.ModelForm):
-    class Meta:
-        model = Fasos
-        fields = ['fasos', 'lokasi_fasos']
-        labels = {
-            'fasos': 'Fasos',
-            'lokasi_fasos': 'Koordinat Fasos',
-		}
-        widgets = {
-            'fasos': forms.TextInput(attrs={
-                'class': 'shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full p-2.5',
-                'placeholder': '',
-                'id': 'fasos',
-            }),
-            'lokasi_fasos': forms.TextInput(attrs={
-                'class': 'shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full p-2.5',
-                'placeholder': '',
-                'id': 'lokasi_fasos',
-                'disabled': 'disabled',
             })
         }
 

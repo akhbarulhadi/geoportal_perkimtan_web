@@ -4,24 +4,6 @@ from django.contrib.auth.models import User
 from django.conf import settings
 
 # Create your models here.
-
-# class DataSets(models.Model):
-#     JENIS_CHOICES = [
-#         ('PUBLIC', 'Public'),
-#         ('PRIVATE', 'Private'),
-#     ]
-#     id_datasets = models.AutoField(primary_key=True)
-#     title = models.CharField(max_length=255)
-#     abstract = models.CharField(max_length=255)
-#     photo_datasets = models.ImageField(upload_to='datasets_photos/', null=True, blank=True)
-#     status = models.CharField(max_length=30, choices=JENIS_CHOICES)
-#     published = models.DateField(null=True, blank=True)  # Jika bisa belum ditentukan
-#     last_modified = models.DateTimeField(auto_now=True)  # Otomatis diperbarui saat diupdate
-#     created_at = models.DateTimeField(auto_now_add=True)  # Hanya saat pertama kali dibuat
-
-#     def __str__(self):
-#         return "{}".format(self.title)
-
     
 class Kecamatan(models.Model):
     id_kecamatan = models.AutoField(primary_key=True)
@@ -62,43 +44,29 @@ class Rumah(models.Model):
         ('LUAS_RUMAH_CUKUP', 'Luas Rumah Cukup'),
         ('LUAS_RUMAH_KURANG', 'Luas Rumah Kurang'),
     ]
+
     id_rumah = models.AutoField(primary_key=True)
-
-    nama_pemilik = models.CharField(max_length=255)
-    alamat_rumah = models.CharField(max_length=255)
-
+    nama_pemilik = models.CharField(max_length=255, null=True, blank=True)
+    alamat_rumah = models.CharField(max_length=255, null=True, blank=True)
     rumah_sewa = models.BooleanField(default=False)
-
-    jumlah_kk = models.IntegerField()
+    jumlah_kk = models.IntegerField(null=True, blank=True)
     nilai_keselamatan = models.IntegerField(null=True, blank=True)
     nilai_kesehatan = models.IntegerField(null=True, blank=True)
     nilai_komponen = models.IntegerField(null=True, blank=True)
-
-    status_rumah = models.CharField(max_length=30, choices=STATUS_RUMAH_CHOICES)
-    status_luas = models.CharField(max_length=30, choices=STATUS_LUAS_CHOICES)
-
+    status_rumah = models.CharField(max_length=30, choices=STATUS_RUMAH_CHOICES, null=True, blank=True)
+    status_luas = models.CharField(max_length=30, choices=STATUS_LUAS_CHOICES, null=True, blank=True)
     geo = models.OneToOneField(GeoDataset, on_delete=models.CASCADE)
-
-    nama_perumahan = models.ForeignKey(Perumahan, on_delete=models.CASCADE)
+    nama_perumahan = models.ForeignKey(Perumahan, on_delete=models.CASCADE, null=True, blank=True)
     photo_rumah = models.ImageField(upload_to='rumah_photo/', blank=True, null=True, storage=settings.SUPABASE_STORAGE_BACKEND)
+    dibuat_oleh_users = models.CharField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return "{}".format(self.nama_pemilik)
 
-class Fasos(models.Model):
-    id_fasos = models.AutoField(primary_key=True)
-    nama_perumahan = models.ForeignKey(Perumahan, on_delete=models.CASCADE)
-    fasos = models.CharField(max_length=255)
-    lokasi_fasos = models.GeometryField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return "{}".format(self.fasos)
-
 class RumahSusun(models.Model):
     id_rumah_susun = models.AutoField(primary_key=True)
-    photo_rusun = models.ImageField(upload_to='rusun_photo/', blank=True, null=True)
+    photo_rusun = models.ImageField(upload_to='rusun_photo/', blank=True, null=True, storage=settings.SUPABASE_STORAGE_BACKEND)
     alamat_rusun = models.CharField(max_length=255)
     nama_rusun = models.CharField(max_length=255)
     kecamatan = models.ForeignKey(Kecamatan, on_delete=models.CASCADE)
@@ -110,37 +78,14 @@ class RumahSusun(models.Model):
 
     def __str__(self):
         return "{}".format(self.nama_rusun)
-    
-class SebaranRumahLiar(models.Model):
-    id_kelurahan = models.AutoField(primary_key=True)
-    photo_ruli = models.ImageField(upload_to='ruli_photo/', blank=True, null=True)
-    alamat_ruli = models.CharField(max_length=255)
-    kecamatan = models.ForeignKey(Kecamatan, on_delete=models.CASCADE)
-    kelurahan = models.ForeignKey(Kelurahan, on_delete=models.CASCADE)
-    lokasi_ruli = models.GeometryField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return "{}".format(self.alamat_ruli)
-    
-class Taman(models.Model):
-    id_kelurahan = models.AutoField(primary_key=True)
-    photo_taman = models.ImageField(upload_to='taman_photo/', blank=True, null=True)
-    alamat_taman = models.CharField(max_length=255)
-    nama_taman = models.CharField(max_length=255)
-    kecamatan = models.ForeignKey(Kecamatan, on_delete=models.CASCADE)
-    kelurahan = models.ForeignKey(Kelurahan, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return "{}".format(self.nama_taman)
-    
+  
 class AddRequest(models.Model):
     photo_rumah = models.ImageField(upload_to='rumah_photo/', blank=True, null=True, storage=settings.SUPABASE_STORAGE_BACKEND)
     photo_perumahan = models.ImageField(upload_to='perumahan_photo/', blank=True, null=True, storage=settings.SUPABASE_STORAGE_BACKEND)
     geometry = models.GeometryField(srid=4326)
     data = models.JSONField(blank=True, null=True)
     dibuat_oleh = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    dibuat_oleh_users = models.CharField(blank=True, null=True)
     dibuat_pada = models.DateTimeField(auto_now_add=True)
     disetujui = models.BooleanField(default=False)
     ditolak = models.BooleanField(default=False)

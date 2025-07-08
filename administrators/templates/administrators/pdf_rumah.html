@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      td,
+      th {
+        border: 1px solid #000;
+        padding: 6px;
+        text-align: left;
+      }
+      h2 {
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Data Rumah</h2>
+    <table>
+      <tr>
+        <th>Foto Rumah</th>
+        <td>
+          {% if rumah.photo_rumah %}
+            <img src="{{ rumah.photo_rumah.url }}" width="200" />
+          {% else %}
+            Tidak ada foto
+          {% endif %}
+        </td>
+      </tr>
+      <tr>
+        <th>Nama Pemilik</th>
+        <td>{{ rumah.nama_pemilik }}</td>
+      </tr>
+      <tr>
+        <th>Alamat</th>
+        <td>{{ rumah.alamat_rumah }}</td>
+      </tr>
+      <tr>
+        <th>Rumah Sewa</th>
+        <td>{{ rumah.rumah_sewa }}</td>
+      </tr>
+      <tr>
+        <th>Jumlah KK</th>
+        <td>{{ rumah.jumlah_kk }}</td>
+      </tr>
+      <tr>
+        <th>Status Rumah</th>
+        <td>{{ rumah.status_rumah }}</td>
+      </tr>
+      <tr>
+        <th>Status Luas</th>
+        <td>{{ rumah.status_luas }}</td>
+      </tr>
+      <tr>
+        <th>Nilai Keselamatan</th>
+        <td>{{ rumah.nilai_keselamatan }}</td>
+      </tr>
+      <tr>
+        <th>Nilai Kesehatan</th>
+        <td>{{ rumah.nilai_kesehatan }}</td>
+      </tr>
+      <tr>
+        <th>Nilai Komponen</th>
+        <td>{{ rumah.nilai_komponen }}</td>
+      </tr>
+      <tr>
+        <th>Perumahan</th>
+        <td>{{ perumahan.nama_perumahan }}</td>
+      </tr>
+      <tr>
+        <th>Kecamatan</th>
+        <td>{{ kecamatan }}</td>
+      </tr>
+      <tr>
+        <th>Lokasi Rumah</th>
+        <td>{{ geo.geometry }}</td>
+      </tr>
+    </table>
+  </body>
+</html>

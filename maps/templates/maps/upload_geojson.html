@@ -48,7 +48,7 @@
               <div class="grid grid-cols-6 gap-6">
                 {{ post_form.non_field_errors }}
                 {% for field in form %}
-                  {% if field.name != 'kategori' %}
+                  {% if field.name != 'kategori' and field.name != 'nama_dataset' %}
                     <div class="col-span-6 sm:col-span-3">
                       <label for="{{ field.id_for_label }}" class="text-sm font-medium text-gray-900 block mb-2">{{ field.label_tag }}</label>
                       <div class="flex items-center gap-2 w-full">
@@ -65,10 +65,20 @@
                 {% endfor %}
                 {% if form.fields.kategori %}
                   <div class="col-span-6 sm:col-span-3">
-                    <label for="kategori-select" class="text-sm font-medium text-gray-900 block mb-2">Nama Dataset</label>
+                    <label for="kategori-select" class="text-sm font-medium text-gray-900 block mb-2">Nama Map</label>
                     <input type="text" name="kategori" id="kategori-select" value="{{ form.kategori.value|default_if_none:'' }}" class="tom-input block w-full p-2.5 rounded-lg border border-gray-300 shadow-sm focus:ring-cyan-600 focus:border-cyan-600 sm:text-sm text-gray-900" placeholder="Buat baru atau cari yang sudah ada" />
 
                     {% for error in form.kategori.errors %}
+                      <p class="text-red-500 text-xs italic">{{ error }}</p>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+                {% if form.fields.nama_dataset %}
+                  <div class="col-span-6 sm:col-span-3">
+                    <label for="nama-dataset-select" class="text-sm font-medium text-gray-900 block mb-2">Item Menu Untuk Filter</label>
+                    <input type="text" name="nama_dataset" id="nama-dataset-select" value="{{ form.nama_dataset.value|default_if_none:'' }}" class="tom-input block w-full p-2.5 rounded-lg border border-gray-300 shadow-sm focus:ring-cyan-600 focus:border-cyan-600 sm:text-sm text-gray-900" placeholder="Buat baru atau cari yang sudah ada" />
+
+                    {% for error in form.nama_dataset.errors %}
                       <p class="text-red-500 text-xs italic">{{ error }}</p>
                     {% endfor %}
                   </div>
@@ -100,6 +110,20 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
+      new TomSelect("#nama-dataset-select", {
+        create: false,
+        persist: false,
+        maxItems: 1,
+        options: [
+          {% for item in item_menu_filter %}
+            { value: "{{ item }}", text: "{{ item }}" },
+          {% endfor %}
+        ]
+      });
+    });
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
       new TomSelect("#kategori-select", {
         create: true,
         persist: false,
@@ -112,7 +136,6 @@
       });
     });
   </script>
-
   <script>
     const form = document.getElementById('upload-form');
     const progressWrapper = document.getElementById('progress-wrapper');
