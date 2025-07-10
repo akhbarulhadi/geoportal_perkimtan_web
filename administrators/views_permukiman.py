@@ -20,6 +20,21 @@ def pp(request):
     operator = request.user.groups.filter(name__in=permission_operator).exists()
 
     jumlah_rumah = GeoDataset.objects.filter(kategori="Unit Rumah").count()
+    data_rumah_belum_lengkap = Rumah.objects.filter(
+        Q(nama_perumahan__isnull=True) |
+        Q(nama_pemilik__isnull=True) |
+        Q(status_rumah__isnull=True) |
+        Q(photo_rumah__isnull=True) |
+        Q(alamat_rumah__isnull=True) |
+        Q(jumlah_kk__isnull=True) |
+        Q(nilai_kesehatan__isnull=True) |
+        Q(nilai_keselamatan__isnull=True) |
+        Q(nilai_komponen__isnull=True) |
+        Q(status_luas__isnull=True) |
+        Q(rumah_sewa__isnull=True) |
+        Q(jumlah_kk__isnull=True) |
+        Q(dibuat_oleh_users__isnull=True)
+    ).count()
     jumlah_rlh = Rumah.objects.filter(status_rumah="RUMAH_LAYAK_HUNI").count()
     jumlah_rtlh = Rumah.objects.filter(status_rumah="RUMAH_TIDAK_LAYAK_HUNI").count()
     jumlah_sewa = Rumah.objects.filter(rumah_sewa=True).count()
@@ -34,6 +49,7 @@ def pp(request):
 	'page_title': 'Permukiman',
     'subjudul': 'Permukiman',
     'jumlah_rumah': jumlah_rumah,
+    'data_rumah_belum_lengkap': data_rumah_belum_lengkap,
     'jumlah_rlh': jumlah_rlh,
     'jumlah_rtlh': jumlah_rtlh,
     'jumlah_sewa': jumlah_sewa,
@@ -74,13 +90,58 @@ def unitRumah(request):
     isi = {
         'placeholder_search' : placeholder_search,
         'table': table,
-        'page_title': 'Jumlah Unit Rumah',
-        'subjudul': 'Jumlah Unit Rumah',
+        'page_title': 'Unit Rumah',
+        'subjudul': 'Unit Rumah',
         'admin': admin,
         'operator': operator,
     }
     return render(request, 'administrators/table_view.html', isi)
 
+@login_required(login_url='/login')
+def dataRumahBelumLengkap(request):
+    permission_admin = ['admin',]
+    admin = request.user.groups.filter(name__in=permission_admin).exists()
+    permission_operator = ['operator',]
+    operator = request.user.groups.filter(name__in=permission_operator).exists()
+
+    search_query = request.GET.get('search', '')
+    queryset = GeoDataset.objects.select_related('rumah') \
+        .filter(kategori='Unit Rumah') \
+        .filter(
+        Q(rumah__nama_perumahan__isnull=True) |
+        Q(rumah__nama_pemilik__isnull=True) |
+        Q(rumah__status_rumah__isnull=True) |
+        Q(rumah__photo_rumah__isnull=True) |
+        Q(rumah__alamat_rumah__isnull=True) |
+        Q(rumah__jumlah_kk__isnull=True) |
+        Q(rumah__nilai_kesehatan__isnull=True) |
+        Q(rumah__nilai_keselamatan__isnull=True) |
+        Q(rumah__nilai_komponen__isnull=True) |
+        Q(rumah__status_luas__isnull=True) |
+        Q(rumah__rumah_sewa__isnull=True) |
+        Q(jumlah_kk__isnull=True) |
+        Q(rumah__dibuat_oleh_users__isnull=True)
+        ) \
+        .order_by('rumah__nama_pemilik')
+
+    if search_query:
+        queryset = queryset.filter(
+            Q(rumah__nama_pemilik__icontains=search_query)
+        )
+
+    table = GeoDatasetTable(queryset)
+    RequestConfig(request, paginate={'per_page': 20}).configure(table)
+    placeholder_search = 'Cari Nama Pemilik...'
+
+    isi = {
+        'placeholder_search' : placeholder_search,
+        'table': table,
+	    'page_title': 'Data Rumah Belum Lengkap',
+        'subjudul': 'Data Rumah Belum Lengkap',
+        'admin': admin,
+        'operator': operator,
+    }
+    return render(request,'administrators/table_view.html', isi)
 
 @login_required(login_url='/login')
 def RLH(request):

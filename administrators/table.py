@@ -93,6 +93,7 @@ class GeoDatasetTable(tables.Table):
     nama_perumahan = tables.Column(accessor='rumah.nama_perumahan', verbose_name='Nama Perumahan', default='Belum ada')
     kelurahan = tables.Column(accessor='rumah.nama_perumahan.kelurahan', verbose_name='Kelurahan', default='Belum ada')
     kecamatan = tables.Column(accessor='rumah.nama_perumahan.kecamatan', verbose_name='Kecamatan', default='Belum ada')
+    jumlah_kk = tables.Column(accessor='rumah.jumlah_kk', verbose_name='Jumlah KK', default='Belum ada')
     nilai_keselamatan = tables.Column(accessor='rumah.nilai_keselamatan', verbose_name='Nilai Keselamatan', default='Belum ada')
     nilai_kesehatan = tables.Column(accessor='rumah.nilai_kesehatan', verbose_name='Nilai Kesehatan', default='Belum ada')
     nilai_komponen = tables.Column(accessor='rumah.nilai_komponen', verbose_name='Nilai Komponen Bangunan', default='Belum ada')
@@ -173,7 +174,7 @@ class GeoDatasetTable(tables.Table):
     class Meta:
         model = GeoDataset
         template_name = "administrators/template_table.html"
-        fields = ("photo_rumah", "nama_pemilik", "dibuat_oleh_users", "nama_perumahan", "kelurahan", "kecamatan", "status_rumah", "status_luas", "rumah_sewa", "perumahan_subsidi", "nilai_keselamatan", "nilai_kesehatan", "nilai_komponen", "lokasi_rumah")
+        fields = ("photo_rumah", "nama_pemilik", "dibuat_oleh_users", "nama_perumahan", "kelurahan", "kecamatan", "status_rumah", "status_luas", "rumah_sewa", "perumahan_subsidi", "jumlah_kk", "nilai_keselamatan", "nilai_kesehatan", "nilai_komponen", "lokasi_rumah")
 
 class AddRequestRumahTable(tables.Table):
     dibuat_oleh = tables.TemplateColumn(
@@ -200,6 +201,7 @@ class AddRequestRumahTable(tables.Table):
     nama_perumahan = tables.Column(accessor='data.nama_perumahan', verbose_name='Nama Perumahan', default='Belum ada')
     kecamatan = tables.Column(accessor='data.nama_perumahan', verbose_name='Kecamatan')
     kelurahan = tables.Column(accessor='data.nama_perumahan', verbose_name='Kelurahan')
+    jumlah_kk = tables.Column(accessor='data.jumlah_kk', verbose_name='Jumlah KK', default='Belum ada')
     nilai_keselamatan = tables.Column(accessor='data.nilai_keselamatan', verbose_name='Nilai Keselamatan', default='Belum ada')
     nilai_kesehatan = tables.Column(accessor='data.nilai_kesehatan', verbose_name='Nilai Kesehatan', default='Belum ada')
     nilai_komponen = tables.Column(accessor='data.nilai_komponen', verbose_name='Nilai Komponen Bangunan', default='Belum ada')
@@ -251,18 +253,22 @@ class AddRequestRumahTable(tables.Table):
     update = tables.TemplateColumn(
         template_code='''
             {% if admin %}
-                <div class="flex items-center gap-1">
-                    <a href="{% url 'administrators:proses-add-request-rumah' record.pk %}?aksi=setuju" title="Setujui" class="p-2 rounded-full group transition-all duration-500 flex item-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                    </a>
-                    <a href="{% url 'administrators:proses-add-request-rumah' record.pk %}?aksi=tolak" title="Tolak" class="p-2 rounded-full group transition-all duration-500 flex item-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </a>
-                </div>
+                {% if not page_title == 'Tambah Rumah Yang Di Setujui' %}
+                    <div class="flex items-center gap-1">
+                        <a href="{% url 'administrators:proses-add-request-rumah' record.pk %}?aksi=setuju" title="Setujui" class="p-2 rounded-full group transition-all duration-500 flex item-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </a>
+                        {% if not page_title == 'Tambah Rumah Yang Di Tolak' %}
+                            <a href="{% url 'administrators:proses-add-request-rumah' record.pk %}?aksi=tolak" title="Tolak" class="p-2 rounded-full group transition-all duration-500 flex item-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </a>
+                        {% endif %}                  
+                    </div>
+                {% endif %}
             {% endif %}
         ''',
         verbose_name='',
@@ -271,7 +277,7 @@ class AddRequestRumahTable(tables.Table):
     class Meta:
         model = AddRequest
         template_name = "administrators/template_table.html"
-        fields = ("dibuat_oleh", "photo_rumah", "nama_pemilik", "nama_perumahan", "status_rumah", "status_luas", "kecamatan", "kelurahan", "rumah_sewa", "nilai_keselamatan", "nilai_kesehatan", "nilai_komponen", "lokasi_rumah")
+        fields = ("dibuat_oleh", "photo_rumah", "nama_pemilik", "nama_perumahan", "status_rumah", "status_luas", "kecamatan", "kelurahan", "rumah_sewa", "jumlah_kk", "nilai_keselamatan", "nilai_kesehatan", "nilai_komponen", "lokasi_rumah")
 
 class UpdateRequestRumahTable(tables.Table):
     id_rumah = tables.Column(accessor='id_rumah', verbose_name='ID Rumah', default='')
@@ -295,6 +301,7 @@ class UpdateRequestRumahTable(tables.Table):
     nama_perumahan = tables.Column(accessor='data.nama_perumahan', verbose_name='Nama Perumahan', default='')
     kecamatan = tables.Column(accessor='data.nama_perumahan', verbose_name='Kecamatan')
     kelurahan = tables.Column(accessor='data.nama_perumahan', verbose_name='Kelurahan')
+    jumlah_kk = tables.Column(accessor='data.jumlah_kk', verbose_name='Jumlah KK', default='')
     nilai_keselamatan = tables.Column(accessor='data.nilai_keselamatan', verbose_name='Nilai Keselamatan', default='')
     nilai_kesehatan = tables.Column(accessor='data.nilai_kesehatan', verbose_name='Nilai Kesehatan', default='')
     nilai_komponen = tables.Column(accessor='data.nilai_komponen', verbose_name='Nilai Komponen Bangunan', default='')
@@ -401,18 +408,22 @@ class UpdateRequestRumahTable(tables.Table):
     update = tables.TemplateColumn(
         template_code='''
             {% if admin %}
-                <div class="flex items-center gap-1">
-                    <a href="{% url 'administrators:proses-update-request-rumah' record.pk %}?aksi=setuju" title="Setujui" class="p-2 rounded-full group transition-all duration-500 flex item-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                    </a>
-                    <a href="{% url 'administrators:proses-update-request-rumah' record.pk %}?aksi=tolak" title="Tolak" class="p-2 rounded-full group transition-all duration-500 flex item-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </a>
-                </div>
+                {% if not page_title == 'Perubahan Unit Rumah Yang Di Setujui' %}
+                    <div class="flex items-center gap-1">
+                        <a href="{% url 'administrators:proses-update-request-rumah' record.pk %}?aksi=setuju" title="Setujui" class="p-2 rounded-full group transition-all duration-500 flex item-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </a>
+                        {% if not page_title == 'Perubahan Unit Rumah Yang Di Tolak' %}
+                            <a href="{% url 'administrators:proses-update-request-rumah' record.pk %}?aksi=tolak" title="Tolak" class="p-2 rounded-full group transition-all duration-500 flex item-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
             {% endif %}
         ''',
         verbose_name='',
@@ -421,5 +432,5 @@ class UpdateRequestRumahTable(tables.Table):
     class Meta:
         model = UpdateRequest
         template_name = "administrators/template_table.html"
-        fields = ("id_rumah","dibuat_oleh", "photo_rumah", "nama_pemilik", "nama_perumahan", "status_rumah", "status_luas", "kecamatan", "kelurahan", "rumah_sewa", "nilai_keselamatan", "nilai_kesehatan", "nilai_komponen", "lokasi_rumah")
+        fields = ("id_rumah","dibuat_oleh", "photo_rumah", "nama_pemilik", "nama_perumahan", "status_rumah", "status_luas", "kecamatan", "kelurahan", "rumah_sewa", "jumlah_kk", "nilai_keselamatan", "nilai_kesehatan", "nilai_komponen", "lokasi_rumah")
         

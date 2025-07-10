@@ -28,21 +28,21 @@
       <div class="bg-gray-100 dark:bg-gray-900">
         <div class="bg-white border border-4 rounded-lg shadow relative m-10">
           <div class="flex w-full">
-            <a href="{% url 'maps:upload-geojson' %}" class="w-1/2 text-center text-sm font-medium text-black bg-gray-100 hover:bg-gray-300 py-3 transition {% if request.path == '/maps/upload/' %} bg-gray-200 font-bold {% endif %}">Upload Map</a>
-            <a href="{% url 'maps:upload-unit-rumah-geojson' %}" class="w-1/2 text-center text-sm font-medium text-black bg-gray-100 hover:bg-gray-200 py-3 transition {% if request.path == '/maps/upload-unit-rumah/' %} bg-gray-200 font-bold {% endif %}">Upload Map Rumah</a>
+            <a href="{% url 'maps:upload-geojson' %}" class="w-1/2 text-center text-sm font-medium text-black bg-gray-100 hover:bg-gray-300 py-3 transition {% if request.path == '/maps/upload/' %} bg-gray-200 font-bold {% endif %}">Upload Peta</a>
+            <a href="{% url 'maps:upload-unit-rumah-geojson' %}" class="w-1/2 text-center text-sm font-medium text-black bg-gray-100 hover:bg-gray-200 py-3 transition {% if request.path == '/maps/upload-unit-rumah/' %} bg-gray-200 font-bold {% endif %}">Upload Peta Rumah</a>
           </div>
           <div class="flex items-start justify-between p-5 border-b rounded-t">
             <h3 class="text-xl font-semibold">{{ subjudul }}</h3>
           </div>
           <div class="p-6 space-y-6">
             <!-- Progress Bar -->
-            <div id="progress-wrapper" class="hidden mb-4">
+            {% comment %} <div id="progress-wrapper" class="hidden mb-4">
               <label class="block text-sm font-medium text-gray-700 mb-1">Uploading...</label>
               <div class="w-full bg-gray-200 rounded-full h-3">
                 <div id="upload-progress" class="bg-indigo-600 h-3 rounded-full" style="width: 0%;"></div>
               </div>
               <p id="progress-text" class="text-sm text-gray-600 mt-1">0%</p>
-            </div>
+            </div> {% endcomment %}
             <form id="upload-form" enctype="multipart/form-data" data-upload-url="{% url upload_url_name %}">
               {% csrf_token %}
               <div class="grid grid-cols-6 gap-6">
@@ -92,6 +92,22 @@
         </div>
       </div>
     </div>
+    <!-- Progress Modal -->
+    <div id="progress-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-50">
+      <div class="bg-white w-full max-w-md p-6 rounded-lg shadow-lg relative">
+        <button onclick="closeProgressModal()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+        <h2 class="text-lg font-semibold mb-2">Mengunggah File...</h2>
+        <p class="text-sm text-gray-600 mb-4">Proses sedang berlangsung. Kamu bisa menutup jendela ini dan proses akan tetap berjalan.</p>
+        <div class="w-full bg-gray-200 rounded-full h-3 mb-2">
+          <div id="upload-progress" class="bg-indigo-600 h-3 rounded-full" style="width: 0%;"></div>
+        </div>
+        <p id="progress-text" class="text-sm text-gray-600">0%</p>
+      </div>
+    </div>
   </main>
 
   <!-- Tom Select JS -->
@@ -138,16 +154,15 @@
   </script>
   <script>
     const form = document.getElementById('upload-form');
-    const progressWrapper = document.getElementById('progress-wrapper');
     const progressBar = document.getElementById('upload-progress');
     const progressText = document.getElementById('progress-text');
+    const modal = document.getElementById('progress-modal');
   
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       const formData = new FormData(form);
-  
       const uploadUrl = form.dataset.uploadUrl;
-
+  
       fetch(uploadUrl, {
         method: 'POST',
         headers: { 'X-Requested-With': 'XMLHttpRequest' },
@@ -156,7 +171,7 @@
       .then(res => res.json())
       .then(data => {
         if (data.task_id) {
-          progressWrapper.classList.remove('hidden');
+          modal.classList.remove('hidden');
   
           const interval = setInterval(() => {
             fetch(`/maps/check-progress/${data.task_id}/`)
@@ -179,5 +194,9 @@
         }
       });
     });
+  
+    function closeProgressModal() {
+      modal.classList.add('hidden');
+    }
   </script>
 {% endblock %}

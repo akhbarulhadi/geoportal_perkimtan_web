@@ -49,61 +49,87 @@
       </div>
 
       <!-- Card -->
-      <div class="grid grid-cols-1 gap-2 px-2 mt-8 sm:grid-cols-2 sm:gap-4 sm:px-4 lg:grid-cols-4 lg:px-8">
-        <a href="{% url 'administrators:view-request-add-rumah' %}" class="group relative cursor-pointer bg-white border rounded-sm overflow-hidden shadow transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
-          <span class="absolute top-15 z-0 h-20 w-20 transition-all duration-300 group-hover:scale-[10]"></span>
-          <div class="relative z-10 flex items-center">
-            <div class="p-4">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-10 w-10 sm:h-12 sm:w-12 text-black">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-              </svg>
-            </div>
-            <div class="px-4 text-gray-700">
-              <h3 class="text-xs sm:text-sm tracking-wider">Pengajuan Rumah Baru</h3>
-              <p class="text-2xl sm:text-3xl">{{ pengajuan_rumah_baru }}</p>
-            </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-4 mt-8">
+        <!-- Card 1: Tambah Rumah Baru -->
+        <a href="{% url 'administrators:view-request-add-rumah' %}" class="flex items-center bg-white rounded-xl shadow-md hover:shadow-lg transition duration-300 p-5 hover:-translate-y-1 space-x-4 border-t-4 border-blue-500">
+          <div class="flex items-center justify-center w-12 h-12 bg-blue-100 text-blue-600 rounded-full">
+            <!-- Icon: Home Plus -->
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 3l9 9m-9-9L3 12m9-9v6m6 0h-6m0 0H6" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm text-gray-600">Tambah Rumah Baru</p>
+            <p class="text-2xl font-bold text-gray-800">{{ pengajuan_rumah_baru }}</p>
           </div>
         </a>
-        <a href="{% url 'administrators:view-request-add-rumah-ditolak' %}" class="group relative cursor-pointer bg-white border rounded-sm overflow-hidden shadow transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
-          <span class="absolute top-15 z-0 h-20 w-20 transition-all duration-300 group-hover:scale-[10]"></span>
-          <div class="relative z-10 flex items-center">
-            <div class="p-4">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-10 w-10 sm:h-12 sm:w-12 text-black">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-              </svg>
-            </div>
-            <div class="px-4 text-gray-700">
-              <h3 class="text-xs sm:text-sm tracking-wider">Pengajuan Rumah Ditolak</h3>
-              <p class="text-2xl sm:text-3xl">{{ pengajuan_rumah_ditolak }}</p>
-            </div>
+
+        <!-- Card 2: Perubahan Unit Rumah -->
+        <a href="{% url 'administrators:view-request-update-rumah' %}" class="flex items-center bg-white rounded-xl shadow-md hover:shadow-lg transition duration-300 p-5 hover:-translate-y-1 space-x-4 border-t-4 border-yellow-500">
+          <div class="flex items-center justify-center w-12 h-12 bg-yellow-100 text-yellow-600 rounded-full">
+            <!-- Icon: Pencil -->
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6-6 4 4-6 6M4 20h4l10.293-10.293a1 1 0 000-1.414l-3.586-3.586a1 1 0 00-1.414 0L4 16v4z" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm text-gray-600">Perubahan Unit Rumah</p>
+            <p class="text-2xl font-bold text-gray-800">{{ perubahan_unit_rumah }}</p>
           </div>
         </a>
-        <a href="{% url 'administrators:view-request-update-rumah' %}" class="group relative cursor-pointer bg-white border rounded-sm overflow-hidden shadow transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
-          <span class="absolute top-15 z-0 h-20 w-20 transition-all duration-300 group-hover:scale-[10]"></span>
-          <div class="relative z-10 flex items-center">
-            <div class="p-4">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-10 w-10 sm:h-12 sm:w-12 text-black">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-              </svg>
-            </div>
-            <div class="px-4 text-gray-700">
-              <h3 class="text-xs sm:text-sm tracking-wider">Perubahan Unit Rumah</h3>
-              <p class="text-2xl sm:text-3xl">{{ perubahan_unit_rumah }}</p>
-            </div>
+      </div>
+      <h2 class="text-2xl font-bold mt-12 mb-4">Riwayat Pengajuan</h2>
+      <!-- Card -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-4 mt-8">
+        <a href="{% url 'administrators:view-request-add-rumah-disetujui' %}" class="flex items-center bg-white rounded-xl shadow-md hover:shadow-lg transition duration-300 p-5 hover:-translate-y-1 space-x-4 border-t-4 border-green-500">
+          <div class="flex items-center justify-center w-12 h-12 bg-green-100 text-green-600 rounded-full">
+            <!-- Icon: Check Mark -->
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm text-gray-600">Tambah Rumah Disetujui</p>
+            <p class="text-2xl font-bold text-gray-800">{{ pengajuan_rumah_disetujui }}</p>
           </div>
         </a>
-        <a href="{% url 'administrators:view-request-update-rumah-ditolak' %}" class="group relative cursor-pointer bg-white border rounded-sm overflow-hidden shadow transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
-          <span class="absolute top-15 z-0 h-20 w-20 transition-all duration-300 group-hover:scale-[10]"></span>
-          <div class="relative z-10 flex items-center">
-            <div class="p-4">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-10 w-10 sm:h-12 sm:w-12 text-black">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-              </svg>
-            </div>
-            <div class="px-4 text-gray-700">
-              <h3 class="text-xs sm:text-sm tracking-wider">Perubahan Unit Rumah Ditolak</h3>
-              <p class="text-2xl sm:text-3xl">{{ perubahan_unit_rumah_ditolak }}</p>
-            </div>
+        <a href="{% url 'administrators:view-request-update-rumah-disetujui' %}" class="flex items-center bg-white rounded-xl shadow-md hover:shadow-lg transition duration-300 p-5 hover:-translate-y-1 space-x-4 border-t-4 border-green-500">
+          <div class="flex items-center justify-center w-12 h-12 bg-green-100 text-green-600 rounded-full">
+            <!-- Icon: Check Mark -->
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm text-gray-600">Perubahan Rumah Disetujui</p>
+            <p class="text-2xl font-bold text-gray-800">{{ perubahan_unit_rumah_disetujui }}</p>
+          </div>
+        </a>
+        <!-- Card 3: Tambah Rumah Ditolak -->
+        <a href="{% url 'administrators:view-request-add-rumah-ditolak' %}" class="flex items-center bg-white rounded-xl shadow-md hover:shadow-lg transition duration-300 p-5 hover:-translate-y-1 space-x-4 border-t-4 border-red-500">
+          <div class="flex items-center justify-center w-12 h-12 bg-red-100 text-red-600 rounded-full">
+            <!-- Icon: X Mark -->
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm text-gray-600">Tambah Rumah Ditolak</p>
+            <p class="text-2xl font-bold text-gray-800">{{ pengajuan_rumah_ditolak }}</p>
+          </div>
+        </a>
+
+        <!-- Card 4: Perubahan Rumah Ditolak -->
+        <a href="{% url 'administrators:view-request-update-rumah-ditolak' %}" class="flex items-center bg-white rounded-xl shadow-md hover:shadow-lg transition duration-300 p-5 hover:-translate-y-1 space-x-4 border-t-4 border-red-500">
+          <div class="flex items-center justify-center w-12 h-12 bg-red-100 text-red-600 rounded-full">
+            <!-- Icon: Document X -->
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12M9 12h6" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm text-gray-600">Perubahan Rumah Ditolak</p>
+            <p class="text-2xl font-bold text-gray-800">{{ perubahan_unit_rumah_ditolak }}</p>
           </div>
         </a>
       </div>

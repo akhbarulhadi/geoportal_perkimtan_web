@@ -22,27 +22,36 @@ def pengajuan(request):
         # Admin bisa lihat semua data
         pengajuan_rumah_baru = AddRequest.objects.filter(disetujui=False, ditolak=False).count()
         pengajuan_rumah_ditolak = AddRequest.objects.filter(ditolak=True).count()
+        pengajuan_rumah_disetujui = AddRequest.objects.filter(disetujui=True).count()
         perubahan_unit_rumah = UpdateRequest.objects.filter(disetujui=False, ditolak=False).count()
         perubahan_unit_rumah_ditolak = UpdateRequest.objects.filter(ditolak=True).count()
+        perubahan_unit_rumah_disetujui = UpdateRequest.objects.filter(disetujui=True).count()
     elif operator:
         # Operator hanya bisa lihat data buatannya sendiri
         pengajuan_rumah_baru = AddRequest.objects.filter(disetujui=False, ditolak=False, dibuat_oleh=request.user).count()
         pengajuan_rumah_ditolak = AddRequest.objects.filter(ditolak=True, dibuat_oleh=request.user).count()
+        pengajuan_rumah_disetujui = AddRequest.objects.filter(disetujui=True, dibuat_oleh=request.user).count()
         perubahan_unit_rumah = UpdateRequest.objects.filter(disetujui=False, ditolak=False, dibuat_oleh=request.user).count()
         perubahan_unit_rumah_ditolak = UpdateRequest.objects.filter(ditolak=True, dibuat_oleh=request.user).count()
+        perubahan_unit_rumah_disetujui = UpdateRequest.objects.filter(disetujui=True, dibuat_oleh=request.user).count()
     else:
         # Default fallback: tidak ada data
         pengajuan_rumah_baru = 0
         pengajuan_rumah_ditolak = 0
+        pengajuan_rumah_disetujui = 0
         perubahan_unit_rumah = 0
+        perubahan_unit_rumah_ditolak = 0
+        perubahan_unit_rumah_disetujui = 0
 
     isi = {
         'page_title': 'Pengajuan',
         'subjudul': 'Pengajuan',
         'pengajuan_rumah_baru': pengajuan_rumah_baru,
         'pengajuan_rumah_ditolak': pengajuan_rumah_ditolak,
+        'pengajuan_rumah_disetujui': pengajuan_rumah_disetujui,
         'perubahan_unit_rumah': perubahan_unit_rumah,
         'perubahan_unit_rumah_ditolak': perubahan_unit_rumah_ditolak,
+        'perubahan_unit_rumah_disetujui': perubahan_unit_rumah_disetujui,
         'admin': admin,
         'operator': operator,
     }
@@ -79,8 +88,8 @@ def viewAddRequestRumah(request):
     isi = {
         'placeholder_search' : placeholder_search,
         'table': table,
-        'page_title': 'Pengajuan Tambah Unit Rumah',
-        'subjudul': 'Pengajuan Tambah Unit Rumah',
+        'page_title': 'Tambah Rumah Baru',
+        'subjudul': 'Tambah Rumah Baru',
         'admin': admin,
         'operator': operator,
     }
@@ -116,8 +125,45 @@ def viewAddRequestRumahDitolak(request):
     isi = {
         'placeholder_search' : placeholder_search,
         'table': table,
-        'page_title': 'Pengajuan Unit Rumah Yang Di Tolak',
-        'subjudul': 'Pengajuan Unit Rumah Yang Di Tolak',
+        'page_title': 'Tambah Rumah Yang Di Tolak',
+        'subjudul': 'Tambah Rumah Yang Di Tolak',
+        'admin': admin,
+        'operator': operator,
+    }
+    return render(request, 'administrators/table_view.html', isi)
+
+@login_required(login_url='/login')
+def viewAddRequestRumahDisetujui(request):
+    permission_admin = ['admin',]
+    admin = request.user.groups.filter(name__in=permission_admin).exists()
+    permission_operator = ['operator',]
+    operator = request.user.groups.filter(name__in=permission_operator).exists()
+
+    search_query = request.GET.get('search', '')
+
+    if admin:
+        # Admin melihat semua pengajuan
+        queryset = AddRequest.objects.filter(disetujui=True)
+    elif operator:
+        # Operator hanya melihat pengajuan miliknya sendiri
+        queryset = AddRequest.objects.filter(disetujui=True, dibuat_oleh=request.user)
+    else:
+        # Fallback: tidak bisa melihat apa-apa
+        queryset = AddRequest.objects.none()
+
+    if search_query:
+        queryset = queryset.filter(
+            Q(dibuat_oleh__username__icontains=search_query)
+        )
+
+    table = AddRequestRumahTable(queryset)
+    RequestConfig(request, paginate={'per_page': 20}).configure(table)
+    placeholder_search = 'Cari Nama Pembuat...'
+    isi = {
+        'placeholder_search' : placeholder_search,
+        'table': table,
+        'page_title': 'Tambah Rumah Yang Di Setujui',
+        'subjudul': 'Tambah Rumah Yang Di Setujui',
         'admin': admin,
         'operator': operator,
     }
@@ -362,6 +408,44 @@ def viewUpdateRequestRumahDitolak(request):
         'table': table,
         'page_title': 'Perubahan Unit Rumah Yang Di Tolak',
         'subjudul': 'Perubahan Unit Rumah Yang Di Tolak',
+        'admin': admin,
+        'operator': operator,
+    }
+    return render(request, 'administrators/table_view.html', isi)
+
+@login_required(login_url='/login')
+def viewUpdateRequestRumahDisetujui(request):
+    permission_admin = ['admin',]
+    admin = request.user.groups.filter(name__in=permission_admin).exists()
+    permission_operator = ['operator',]
+    operator = request.user.groups.filter(name__in=permission_operator).exists()
+
+    search_query = request.GET.get('search', '')
+
+    if admin:
+        # Admin melihat semua pengajuan
+        queryset = UpdateRequest.objects.filter(disetujui=True)
+    elif operator:
+        # Operator hanya melihat pengajuan miliknya sendiri
+        queryset = UpdateRequest.objects.filter(disetujui=True, dibuat_oleh=request.user)
+    else:
+        # Fallback: tidak bisa melihat apa-apa
+        queryset = UpdateRequest.objects.none()
+
+    if search_query:
+        queryset = queryset.filter(
+            Q(dibuat_oleh__username__icontains=search_query) |
+            Q(dibuat_oleh_users__icontains=search_query)
+        )
+
+    table = UpdateRequestRumahTable(queryset)
+    RequestConfig(request, paginate={'per_page': 20}).configure(table)
+    placeholder_search = 'Cari Nama Pembuat...'
+    isi = {
+        'placeholder_search' : placeholder_search,
+        'table': table,
+        'page_title': 'Perubahan Unit Rumah Yang Di Setujui',
+        'subjudul': 'Perubahan Unit Rumah Yang Di Setujui',
         'admin': admin,
         'operator': operator,
     }

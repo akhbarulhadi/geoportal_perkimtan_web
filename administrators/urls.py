@@ -10,6 +10,7 @@ urlpatterns = [
     path('pengajuan/', views_pengajuan.pengajuan, name='pengajuan'),
 
     path('pp/unit-rumah/', views_permukiman.unitRumah, name='unit-rumah'),
+    path('pp/data-rumah-belum-lengkap/', views_permukiman.dataRumahBelumLengkap, name='data-rumah-belum-lengkap'),
     path('pp/rlh', views_permukiman.RLH, name='rlh'),
     path('pp/rtlh', views_permukiman.RTLH, name='rtlh'),
     path('pp/rsewa', views_permukiman.rumahSewa, name='rsewa'),
@@ -37,11 +38,13 @@ urlpatterns = [
 
     path('pp/unit-rumah/view-request-add-rumah/', views_pengajuan.viewAddRequestRumah, name='view-request-add-rumah'),
     path('pp/unit-rumah/view-request-add-rumah-ditolak/', views_pengajuan.viewAddRequestRumahDitolak, name='view-request-add-rumah-ditolak'),
+    path('pp/unit-rumah/view-request-add-rumah-disetujui/', views_pengajuan.viewAddRequestRumahDisetujui, name='view-request-add-rumah-disetujui'),
     path('pp/unit-rumah/request-add-rumah/', views_pengajuan.addRequestRumah, name='request-add-rumah'),
     path('pp/unit-rumah/proses-add-request-rumah/<int:pk>/', views_pengajuan.prosesAddRequestRumah, name='proses-add-request-rumah'),
 
     path('pp/unit-rumah/view-request-update-rumah/', views_pengajuan.viewUpdateRequestRumah, name='view-request-update-rumah'),
     path('pp/unit-rumah/view-request-update-rumah-ditolak/', views_pengajuan.viewUpdateRequestRumahDitolak, name='view-request-update-rumah-ditolak'),
+    path('pp/unit-rumah/view-request-update-rumah-disetujui/', views_pengajuan.viewUpdateRequestRumahDisetujui, name='view-request-update-rumah-disetujui'),
     path('pp/unit-rumah/request-update-rumah/<int:pk>/', views_pengajuan.updateRequestRumah, name='request-update-rumah'),
     path('pp/unit-rumah/proses-update-request-rumah/<int:pk>/', views_pengajuan.prosesUpdateRequestRumah, name='proses-update-request-rumah'),
 
