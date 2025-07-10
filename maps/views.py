@@ -15,6 +15,7 @@ from django.contrib.auth.models import User
 from administrators.logger import log_action
 from django.contrib.admin.models import ADDITION
 from django.db.models import Count
+from django.http import HttpResponse
 
 # Create your views here.
 
@@ -93,6 +94,11 @@ def map_detail_json(request, pk):
 
 @login_required(login_url='/login')
 def maps_unit_rumah(request, kategori):
+    permission_admin = ['admin',]
+    admin = request.user.groups.filter(name__in=permission_admin).exists()
+    permission_operator = ['operator',]
+    operator = request.user.groups.filter(name__in=permission_operator).exists()
+
     queryset = GeoDataset.objects.filter(kategori='Unit Rumah')
 
     features = []
@@ -113,7 +119,42 @@ def maps_unit_rumah(request, kategori):
         'page_title': 'Maps Unit Rumah',
         'subjudul': f'Data kategori: {kategori}',
         'kategori': kategori,
-        'data_map': mark_safe(json.dumps(geojson))
+        'data_map': mark_safe(json.dumps(geojson)),
+        'admin': admin,
+        'operator': operator,
+    }
+    return render(request, 'maps/maps_unit_rumah.html', isi)
+
+@login_required(login_url='/login')
+def maps_unit_rumah_kecamatan(request, kategori, kecamatan):
+    permission_admin = ['admin',]
+    admin = request.user.groups.filter(name__in=permission_admin).exists()
+    permission_operator = ['operator',]
+    operator = request.user.groups.filter(name__in=permission_operator).exists()
+
+    queryset = GeoDataset.objects.filter(kategori='Unit Rumah', nama_dataset=kecamatan)
+
+    features = []
+    for obj in queryset:
+        geom = json.loads(obj.geometry.geojson)
+        features.append({
+            "type": "Feature",
+            "geometry": geom,
+            "properties": {"id": obj.id}  # hanya kirim ID
+        })
+
+    geojson = {
+        "type": "FeatureCollection",
+        "features": features,
+    }
+
+    isi = {
+        'page_title': 'Maps Unit Rumah',
+        'subjudul': f'Data kategori: {kategori}',
+        'kategori': kategori,
+        'data_map': mark_safe(json.dumps(geojson)),
+        'admin': admin,
+        'operator': operator,
     }
     return render(request, 'maps/maps_unit_rumah.html', isi)
 
@@ -127,6 +168,7 @@ def map_detail_json_unit_rumah(request, pk):
     }
     try:
         rumah = obj.rumah
+        perumahan = rumah.nama_perumahan 
         detail["rumah"] = {
             "nama_pemilik": rumah.nama_pemilik,
             "alamat_rumah": rumah.alamat_rumah,
@@ -137,9 +179,9 @@ def map_detail_json_unit_rumah(request, pk):
             "nilai_komponen": rumah.nilai_komponen,
             "status_rumah": rumah.get_status_rumah_display(),
             "status_luas": rumah.get_status_luas_display(),
-            "nama_perumahan": rumah.nama_perumahan.nama_perumahan,
-            "kecamatan": str(rumah.nama_perumahan.kecamatan), 
-            "kelurahan": str(rumah.nama_perumahan.kelurahan), 
+            "nama_perumahan": perumahan.nama_perumahan if perumahan else 'N/A',
+            "kecamatan": str(perumahan.kecamatan) if perumahan and perumahan.kecamatan else 'N/A', 
+            "kelurahan": str(perumahan.kelurahan) if perumahan and perumahan.kelurahan else 'N/A', 
             "photo_rumah_url": rumah.photo_rumah.url if rumah.photo_rumah else None,
         }
     except Rumah.DoesNotExist:
@@ -392,3 +434,116 @@ def maps_object_update_rumah_detail_json(request, pk):
     }
     detail.update(obj.data)
     return JsonResponse(detail)
+
+@login_required(login_url='/login')
+def download_unit_rumah_geojson(request):
+    # Menggunakan select_related tetap disarankan untuk performa, tapi bukan untuk mencegah error ini.
+    queryset = GeoDataset.objects.filter(kategori='Unit Rumah').select_related('rumah')
+
+    features = []
+    for obj in queryset:
+        geometry = json.loads(obj.geometry.geojson)
+        
+        # BLOK TRY...EXCEPT INI ADALAH SOLUSI YANG BENAR
+        try:
+            # Coba akses data rumah yang berelasi
+            rumah = obj.rumah
+            perumahan = rumah.nama_perumahan 
+            # Jika berhasil, isi properties dengan data dari rumah
+            properties = {
+                "id": obj.id,
+                "nama_pemilik": rumah.nama_pemilik,
+                "email_pemilik": rumah.dibuat_oleh_users,
+                "alamat_rumah": rumah.alamat_rumah,
+                "nama_perumahan": perumahan.nama_perumahan if perumahan else 'N/A',
+                "kelurahan": str(perumahan.kelurahan) if perumahan and perumahan.kelurahan else 'N/A', 
+                "kecamatan": str(perumahan.kecamatan) if perumahan and perumahan.kecamatan else 'N/A', 
+                "status_rumah": rumah.status_rumah,
+                "status_luas": rumah.status_luas,
+                "rumah_sewa": rumah.rumah_sewa,
+                # "perumahan_subsidi": perumahan.perumahan_subsidi,
+                "nilai_keselamatan": rumah.nilai_keselamatan,
+                "nilai_kesehatan": rumah.nilai_kesehatan,
+                "nilai_komponen": rumah.nilai_komponen,
+            }
+        except GeoDataset.rumah.RelatedObjectDoesNotExist:
+            # Jika gagal (karena tidak ada rumah), beri nilai default
+            properties = {
+                "id": obj.id,
+                "nama_pemilik": "Data Rumah Tidak Ditemukan",
+                "email_pemilik": "N/A",
+                "alamat_rumah": "N/A",
+                "nama_perumahan": "N/A",
+                "kelurahan": "N/A",
+                "kecamatan": "N/A",
+                "status_rumah": "N/A",
+                "status_luas": "N/A",
+                "rumah_sewa": "N/A",
+                # "perumahan_subsidi": "N/A",
+                "nilai_keselamatan": "N/A",
+                "nilai_kesehatan": "N/A",
+                "nilai_komponen": "N/A",
+            }
+
+        # Lanjutkan membuat struktur fitur dengan properties yang sudah aman
+        feature = {
+            "type": "Feature",
+            "properties": properties,
+            "geometry": geometry,
+        }
+        features.append(feature)
+
+    geojson_data = {
+        "type": "FeatureCollection",
+        "features": features,
+    }
+
+    response = HttpResponse(
+        json.dumps(geojson_data, indent=2),
+        content_type="application/json",
+    )
+    response['Content-Disposition'] = 'attachment; filename="data_unit_rumah.geojson"'
+    
+    return response
+
+@login_required(login_url='/login')
+def download_geojson(request, kategori):
+    # Menggunakan select_related tetap disarankan untuk performa, tapi bukan untuk mencegah error ini.
+    queryset = GeoDataset.objects.filter(kategori=kategori)
+
+    features = []
+    for obj in queryset:
+        geometry = json.loads(obj.geometry.geojson)
+        
+        # BLOK TRY...EXCEPT INI ADALAH SOLUSI YANG BENAR
+        try:
+            properties = {
+                "id": obj.id,
+                "properties": obj.properties,
+            }
+        except GeoDataset.rumah.RelatedObjectDoesNotExist:
+            # Jika gagal (karena tidak ada rumah), beri nilai default
+            properties = {
+                "id": obj.id,
+            }
+
+        # Lanjutkan membuat struktur fitur dengan properties yang sudah aman
+        feature = {
+            "type": "Feature",
+            "properties": properties,
+            "geometry": geometry,
+        }
+        features.append(feature)
+
+    geojson_data = {
+        "type": "FeatureCollection",
+        "features": features,
+    }
+
+    response = HttpResponse(
+        json.dumps(geojson_data, indent=2),
+        content_type="application/json",
+    )
+    response['Content-Disposition'] = 'attachment; filename="download.geojson"'
+    
+    return response

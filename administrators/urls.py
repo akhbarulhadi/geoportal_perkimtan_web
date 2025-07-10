@@ -45,7 +45,7 @@ urlpatterns = [
     path('pp/unit-rumah/request-update-rumah/<int:pk>/', views_pengajuan.updateRequestRumah, name='request-update-rumah'),
     path('pp/unit-rumah/proses-update-request-rumah/<int:pk>/', views_pengajuan.prosesUpdateRequestRumah, name='proses-update-request-rumah'),
 
-    path('unit-rumah/<int:pk>/download-pdf/', views_permukiman.download_data_rumah_pdf, name='download-data-rumah-pdf'),
+    path('unit-rumah/<int:pk>/preview-pdf/', views_permukiman.preview_data_rumah_pdf, name='preview-data-rumah-pdf'),
 
     ]
 

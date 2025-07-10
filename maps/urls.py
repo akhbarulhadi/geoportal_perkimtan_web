@@ -7,7 +7,10 @@ urlpatterns = [
     path('datasets/', views.datasets, name='datasets'),
 
     path('datasets-unit-rumah/<str:kategori>/', views.maps_unit_rumah, name='maps-unit-rumah-by-kategori'),
+    path('datasets-unit-rumah/<str:kategori>/<str:kecamatan>/', views.maps_unit_rumah_kecamatan, name='maps-unit-rumah-by-kategori-kecamatan'),
     path('detail-json-unit-rumah/<int:pk>/', views.map_detail_json_unit_rumah, name='map-detail-json-unit-rumah'),
+    path('download-geojson-rumah/', views.download_unit_rumah_geojson, name='download-geojson-rumah'),
+    path('download-geojson/<str:kategori>/', views.download_geojson, name='download-geojson'),
 
     path('datasets/<str:kategori>/', views.maps, name='maps-by-kategori'),
     path('detail-json/<int:pk>/', views.map_detail_json, name='map-detail-json'),

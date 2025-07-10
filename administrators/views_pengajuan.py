@@ -23,11 +23,13 @@ def pengajuan(request):
         pengajuan_rumah_baru = AddRequest.objects.filter(disetujui=False, ditolak=False).count()
         pengajuan_rumah_ditolak = AddRequest.objects.filter(ditolak=True).count()
         perubahan_unit_rumah = UpdateRequest.objects.filter(disetujui=False, ditolak=False).count()
+        perubahan_unit_rumah_ditolak = UpdateRequest.objects.filter(ditolak=True).count()
     elif operator:
         # Operator hanya bisa lihat data buatannya sendiri
         pengajuan_rumah_baru = AddRequest.objects.filter(disetujui=False, ditolak=False, dibuat_oleh=request.user).count()
         pengajuan_rumah_ditolak = AddRequest.objects.filter(ditolak=True, dibuat_oleh=request.user).count()
         perubahan_unit_rumah = UpdateRequest.objects.filter(disetujui=False, ditolak=False, dibuat_oleh=request.user).count()
+        perubahan_unit_rumah_ditolak = UpdateRequest.objects.filter(ditolak=True, dibuat_oleh=request.user).count()
     else:
         # Default fallback: tidak ada data
         pengajuan_rumah_baru = 0
@@ -40,6 +42,7 @@ def pengajuan(request):
         'pengajuan_rumah_baru': pengajuan_rumah_baru,
         'pengajuan_rumah_ditolak': pengajuan_rumah_ditolak,
         'perubahan_unit_rumah': perubahan_unit_rumah,
+        'perubahan_unit_rumah_ditolak': perubahan_unit_rumah_ditolak,
         'admin': admin,
         'operator': operator,
     }
@@ -113,8 +116,8 @@ def viewAddRequestRumahDitolak(request):
     isi = {
         'placeholder_search' : placeholder_search,
         'table': table,
-        'page_title': 'Pengajuan Tambah Unit Rumah',
-        'subjudul': 'Pengajuan Tambah Unit Rumah',
+        'page_title': 'Pengajuan Unit Rumah Yang Di Tolak',
+        'subjudul': 'Pengajuan Unit Rumah Yang Di Tolak',
         'admin': admin,
         'operator': operator,
     }
@@ -319,8 +322,8 @@ def viewUpdateRequestRumah(request):
     isi = {
         'placeholder_search' : placeholder_search,
         'table': table,
-        'page_title': 'Pengajuan Perubahan Unit Rumah',
-        'subjudul': 'Pengajuan Perubahan Unit Rumah',
+        'page_title': 'Perubahan Unit Rumah',
+        'subjudul': 'Perubahan Unit Rumah',
         'admin': admin,
         'operator': operator,
     }
@@ -357,8 +360,8 @@ def viewUpdateRequestRumahDitolak(request):
     isi = {
         'placeholder_search' : placeholder_search,
         'table': table,
-        'page_title': 'Pengajuan Perubahan Unit Rumah',
-        'subjudul': 'Pengajuan Perubahan Unit Rumah',
+        'page_title': 'Perubahan Unit Rumah Yang Di Tolak',
+        'subjudul': 'Perubahan Unit Rumah Yang Di Tolak',
         'admin': admin,
         'operator': operator,
     }

@@ -33,8 +33,7 @@
           <div class="flex items-start justify-between p-5 border-b rounded-t">
             <h3 class="text-xl font-semibold">{{ subjudul }}</h3>
             {% if subjudul == 'Detail Data Rumah' %}
-              <a href="{% url 'maps:maps-unit-rumah-by-kategori' 'Unit Rumah' %}?id={{ geo_form.instance.id }}">view in map</a>
-              <a href="{% url 'administrators:download-data-rumah-pdf' pk=geo_form.instance.pk %}" class="btn btn-danger">Download PDF</a>
+              <a href="{% url 'maps:maps-unit-rumah-by-kategori' 'Unit Rumah' %}?id={{ geo_form.instance.id }}">View in map</a>
             {% endif %}
           </div>
           <div class="p-6 space-y-6">
@@ -116,8 +115,11 @@
                   </div>
                 </div>
               </div>
-              <div class="mt-8 border-t border-gray-200 rounded-b">
+              <div class="mt-8 border-t border-gray-200 rounded-b flex flex-wrap justify-between">
                 <button class="mt-4 text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center" type="submit">{{ button }}</button>
+                {% if subjudul == 'Detail Data Rumah' %}
+                  <a href="{% url 'administrators:preview-data-rumah-pdf' pk=geo_form.instance.pk %}" class="mt-4">🖨️ Preview PDF</a>
+                {% endif %}
               </div>
             </form>
           </div>

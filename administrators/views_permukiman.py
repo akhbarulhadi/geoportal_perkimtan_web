@@ -10,9 +10,7 @@ from maps.models import GeoDataset
 from django.db.models import Q
 from .logger import log_action
 from django.contrib.admin.models import DELETION, ADDITION, CHANGE
-from django.core.exceptions import PermissionDenied
-from django.template.loader import get_template
-from xhtml2pdf import pisa
+
 
 @login_required(login_url='/login')
 def pp(request):
@@ -671,9 +669,8 @@ def deleteRusun(request, pk):
 
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
-
 @login_required(login_url='/login')
-def download_data_rumah_pdf(request, pk):
+def preview_data_rumah_pdf(request, pk): # <= Nama fungsi diubah
     geo_instance = get_object_or_404(GeoDataset, pk=pk)
 
     try:
@@ -681,7 +678,6 @@ def download_data_rumah_pdf(request, pk):
     except Rumah.DoesNotExist:
         return HttpResponse("Data rumah tidak ditemukan", status=404)
 
-    # Ambil data tambahan
     perumahan = rumah.nama_perumahan
     kecamatan = perumahan.kecamatan.kecamatan if perumahan and perumahan.kecamatan else 'Tanpa Kecamatan'
 
@@ -692,14 +688,4 @@ def download_data_rumah_pdf(request, pk):
         'kecamatan': kecamatan,
     }
 
-    template = get_template("administrators/pdf_rumah.html")
-    html = template.render(context)
-
-    response = HttpResponse(content_type="application/pdf")
-    response["Content-Disposition"] = f'attachment; filename="data_rumah_{pk}.pdf"'
-
-    pisa_status = pisa.CreatePDF(html, dest=response)
-
-    if pisa_status.err:
-        return HttpResponse("Gagal membuat PDF", status=500)
-    return response
+    return render(request, 'administrators/pdf_rumah.html', context)

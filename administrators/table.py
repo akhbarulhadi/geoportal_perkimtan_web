@@ -250,18 +250,20 @@ class AddRequestRumahTable(tables.Table):
 
     update = tables.TemplateColumn(
         template_code='''
-            <div class="flex items-center gap-1">
-                <a href="{% url 'administrators:proses-add-request-rumah' record.pk %}?aksi=setuju" title="Setujui" class="p-2 rounded-full group transition-all duration-500 flex item-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                </a>
-                <a href="{% url 'administrators:proses-add-request-rumah' record.pk %}?aksi=tolak" title="Tolak" class="p-2 rounded-full group transition-all duration-500 flex item-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </a>
-            </div>
+            {% if admin %}
+                <div class="flex items-center gap-1">
+                    <a href="{% url 'administrators:proses-add-request-rumah' record.pk %}?aksi=setuju" title="Setujui" class="p-2 rounded-full group transition-all duration-500 flex item-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </a>
+                    <a href="{% url 'administrators:proses-add-request-rumah' record.pk %}?aksi=tolak" title="Tolak" class="p-2 rounded-full group transition-all duration-500 flex item-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </a>
+                </div>
+            {% endif %}
         ''',
         verbose_name='',
         orderable=False
@@ -398,19 +400,20 @@ class UpdateRequestRumahTable(tables.Table):
 
     update = tables.TemplateColumn(
         template_code='''
-            <div class="flex items-center gap-1">
-                <a href="{% url 'administrators:proses-update-request-rumah' record.pk %}?aksi=setuju" title="Setujui" class="p-2 rounded-full group transition-all duration-500 flex item-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                </a>
-                <a href="{% url 'administrators:proses-update-request-rumah' record.pk %}?aksi=tolak" title="Tolak" class="p-2 rounded-full group transition-all duration-500 flex item-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </a>
-            </div>
-
+            {% if admin %}
+                <div class="flex items-center gap-1">
+                    <a href="{% url 'administrators:proses-update-request-rumah' record.pk %}?aksi=setuju" title="Setujui" class="p-2 rounded-full group transition-all duration-500 flex item-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </a>
+                    <a href="{% url 'administrators:proses-update-request-rumah' record.pk %}?aksi=tolak" title="Tolak" class="p-2 rounded-full group transition-all duration-500 flex item-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </a>
+                </div>
+            {% endif %}
         ''',
         verbose_name='',
         orderable=False
