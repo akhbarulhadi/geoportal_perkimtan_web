@@ -95,9 +95,16 @@
       <!-- Modal -->
       <div id="deleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
         <div class="bg-white rounded-lg p-6 max-w-sm w-full shadow-lg">
-          <h2 class="text-lg font-semibold mb-4">Konfirmasi Hapus</h2>
-          <p class="mt-2 mb-1">Apakah kamu yakin ingin menghapus data ini?</p>
-          <p class="text-sm mb-6 text-gray-400">Jika data ini terhubung ke data lain maka juga akan di hapus.</p>
+          {% if admin %}
+            <h2 class="text-lg font-semibold mb-4">Konfirmasi Hapus</h2>
+            <p class="mt-2 mb-1">Apakah kamu yakin ingin menghapus data ini?</p>
+            <p class="text-sm mb-6 text-gray-400">Jika data ini terhubung ke data lain maka juga akan di hapus.</p>
+          {% endif %}
+          {% if operator %}
+            <h2 class="text-lg font-semibold mb-4">Pengajuan Hapus Data</h2>
+            <p class="mt-2 mb-1">Apakah kamu yakin ingin mengajukan penghapusan data ini?</p>
+            <p class="text-sm mb-6 text-gray-400">Jika admin setuju, data ini akan terhapus.</p>
+          {% endif %}
 
           <!-- Form konfirmasi -->
           <form id="deleteForm" method="post">
@@ -128,6 +135,21 @@
       const modal = document.getElementById('deleteModal')
       const form = document.getElementById('deleteForm')
       const url = `/pp/delete-rumah/${pk}/`
+    
+      form.action = url
+      modal.classList.remove('hidden')
+    }
+    
+    function closeModal() {
+      document.getElementById('deleteModal').classList.add('hidden')
+    }
+  </script>
+
+  <script>
+    function openModalRequestDelRumah(pk) {
+      const modal = document.getElementById('deleteModal')
+      const form = document.getElementById('deleteForm')
+      const url = `/pp/unit-rumah/request-delete-rumah/${pk}/`
     
       form.action = url
       modal.classList.remove('hidden')

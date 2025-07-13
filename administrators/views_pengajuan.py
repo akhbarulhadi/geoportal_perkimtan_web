@@ -1,14 +1,14 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from gis_data.models import Rumah, Perumahan, AddRequest, UpdateRequest
-from .table import AddRequestRumahTable, UpdateRequestRumahTable
+from .table import AddRequestRumahTable, UpdateRequestRumahTable, GeoDatasetTable
 from .forms import rumahForm, geoForm, RumahAddRequestForm
 from django.contrib import messages
 from django_tables2 import RequestConfig
 from maps.models import GeoDataset
 from django.db.models import Q
 from .logger import log_action
-from django.contrib.admin.models import ADDITION
+from django.contrib.admin.models import ADDITION, DELETION
 from django.db import models
 
 @login_required(login_url='/login')
@@ -26,6 +26,7 @@ def pengajuan(request):
         perubahan_unit_rumah = UpdateRequest.objects.filter(disetujui=False, ditolak=False).count()
         perubahan_unit_rumah_ditolak = UpdateRequest.objects.filter(ditolak=True).count()
         perubahan_unit_rumah_disetujui = UpdateRequest.objects.filter(disetujui=True).count()
+        penghapusan_rumah = GeoDataset.objects.filter(kategori='Unit Rumah', is_delete=True).count()
     elif operator:
         # Operator hanya bisa lihat data buatannya sendiri
         pengajuan_rumah_baru = AddRequest.objects.filter(disetujui=False, ditolak=False, dibuat_oleh=request.user).count()
@@ -34,6 +35,7 @@ def pengajuan(request):
         perubahan_unit_rumah = UpdateRequest.objects.filter(disetujui=False, ditolak=False, dibuat_oleh=request.user).count()
         perubahan_unit_rumah_ditolak = UpdateRequest.objects.filter(ditolak=True, dibuat_oleh=request.user).count()
         perubahan_unit_rumah_disetujui = UpdateRequest.objects.filter(disetujui=True, dibuat_oleh=request.user).count()
+        penghapusan_rumah = GeoDataset.objects.filter(kategori='Unit Rumah', is_delete=True, dibuat_oleh=request.user).count()
     else:
         # Default fallback: tidak ada data
         pengajuan_rumah_baru = 0
@@ -42,6 +44,7 @@ def pengajuan(request):
         perubahan_unit_rumah = 0
         perubahan_unit_rumah_ditolak = 0
         perubahan_unit_rumah_disetujui = 0
+        penghapusan_rumah = 0
 
     isi = {
         'page_title': 'Pengajuan',
@@ -52,6 +55,7 @@ def pengajuan(request):
         'perubahan_unit_rumah': perubahan_unit_rumah,
         'perubahan_unit_rumah_ditolak': perubahan_unit_rumah_ditolak,
         'perubahan_unit_rumah_disetujui': perubahan_unit_rumah_disetujui,
+        'penghapusan_rumah': penghapusan_rumah,
         'admin': admin,
         'operator': operator,
     }
@@ -533,3 +537,77 @@ def prosesUpdateRequestRumah(request, pk):
     else:
         messages.error(request, "Aksi tidak valid.")
         return redirect(request.META.get('HTTP_REFERER', '/'))
+    
+@login_required(login_url='/login')
+def requestDeleteRumah(request, pk):
+    dataset = get_object_or_404(GeoDataset, pk=pk)
+        
+    if request.method == 'POST':
+        try:
+            dataset.is_delete = True
+            dataset.dibuat_oleh = request.user
+            dataset.save()
+            messages.success(request, 'Penghapusan Data Berhasil Diajukan!')
+        except Exception as e:
+            messages.error(request, f'Gagal mengajukan hapus data: {str(e)}')
+
+    return redirect(request.META.get('HTTP_REFERER', '/'))
+
+@login_required(login_url='/login')
+def viewRequestDeleteRumah(request):
+    permission_admin = ['admin',]
+    admin = request.user.groups.filter(name__in=permission_admin).exists()
+    permission_operator = ['operator',]
+    operator = request.user.groups.filter(name__in=permission_operator).exists()
+
+    search_query = request.GET.get('search', '')
+    if admin:
+        queryset = GeoDataset.objects.select_related('rumah').filter(kategori='Unit Rumah', is_delete=True).order_by('rumah__nama_pemilik')
+    elif operator:
+        queryset = GeoDataset.objects.select_related('rumah').filter(kategori='Unit Rumah', is_delete=True, dibuat_oleh=request.user).order_by('rumah__nama_pemilik')
+    else:
+        queryset = GeoDataset.objects.none()
+
+    if search_query:
+        queryset = queryset.filter(
+            Q(rumah__nama_pemilik__icontains=search_query) |
+            Q(rumah__id_rumah__icontains=search_query)
+        )
+
+    table = GeoDatasetTable(queryset)
+    RequestConfig(request, paginate={'per_page': 20}).configure(table)
+    placeholder_search = 'Cari Nama Pemilik...'
+    isi = {
+        'placeholder_search' : placeholder_search,
+        'table': table,
+        'page_title': 'Penghapusan Unit Rumah',
+        'subjudul': 'Penghapusan Unit Rumah',
+        'admin': admin,
+        'operator': operator,
+    }
+    return render(request, 'administrators/table_view.html', isi)
+
+@login_required(login_url='/login')
+def prosesDeleteRequstRumah(request, pk):
+    aksi = request.GET.get('aksi')
+    dataset = get_object_or_404(GeoDataset, pk=pk)
+
+    if aksi == 'setuju':
+        try:
+            dataset.delete()
+            messages.success(request, 'Data berhasil dihapus!')
+        except Exception as e:
+            messages.error(request, f'Gagal menghapus data: {str(e)}')
+
+    elif aksi == 'tolak':
+        try:
+            dataset.is_delete = False
+            dataset.save()
+            messages.success(request, 'Permintaan penghapusan ditolak.')
+        except Exception as e:
+            messages.error(request, f'Gagal menolak permintaan: {str(e)}')
+
+    else:
+        messages.error(request, 'Aksi tidak dikenali.')
+
+    return redirect(request.META.get('HTTP_REFERER', '/'))

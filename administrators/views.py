@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from gis_data.models import Rumah, AddRequest, UpdateRequest
+from maps.models import GeoDataset
 from django.db.models import Q
 
 # Create your views here.
@@ -27,11 +28,13 @@ def index(request):
     ).count()
     total_pengajuan_belum_diproses = (
         AddRequest.objects.filter(disetujui=False, ditolak=False).count() +
-        UpdateRequest.objects.filter(disetujui=False, ditolak=False).count()
+        UpdateRequest.objects.filter(disetujui=False, ditolak=False).count() +
+        GeoDataset.objects.filter(kategori='Unit Rumah', is_delete=True).count()
     )
     total_pengajuan_saya_belum_diproses = (
         AddRequest.objects.filter(disetujui=False, ditolak=False, dibuat_oleh=request.user).count() +
-        UpdateRequest.objects.filter(disetujui=False, ditolak=False, dibuat_oleh=request.user).count()
+        UpdateRequest.objects.filter(disetujui=False, ditolak=False, dibuat_oleh=request.user).count() +
+        GeoDataset.objects.filter(kategori='Unit Rumah', is_delete=True, dibuat_oleh=request.user).count()
     )
     isi = {
 		'page_title': 'Utama',

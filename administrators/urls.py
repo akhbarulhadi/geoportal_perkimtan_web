@@ -48,6 +48,10 @@ urlpatterns = [
     path('pp/unit-rumah/request-update-rumah/<int:pk>/', views_pengajuan.updateRequestRumah, name='request-update-rumah'),
     path('pp/unit-rumah/proses-update-request-rumah/<int:pk>/', views_pengajuan.prosesUpdateRequestRumah, name='proses-update-request-rumah'),
 
+    path('pp/unit-rumah/view-request-delete-rumah/', views_pengajuan.viewRequestDeleteRumah, name='view-request-delete-rumah'),
+    path('pp/unit-rumah/proses-delete-request-rumah/<int:pk>/', views_pengajuan.prosesDeleteRequstRumah, name='proses-delete-request-rumah'),
+    path('pp/unit-rumah/request-delete-rumah/<int:pk>/', views_pengajuan.requestDeleteRumah, name='request-delete-rumah'),
+
     path('unit-rumah/<int:pk>/preview-pdf/', views_permukiman.preview_data_rumah_pdf, name='preview-data-rumah-pdf'),
 
     ]
