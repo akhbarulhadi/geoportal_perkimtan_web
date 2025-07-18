@@ -57,7 +57,11 @@ The Geoportal Perkimtan project was built with the goal of delivering a responsi
 <h2 id="demo">Demo</h2>
 
 <p>
-  Anda dapat mencoba aplikasi ini melalui folder <strong><a href="./demo-app"><code>/demo-app</code></a></strong> yang berisi file installer (.exe) hasil build dari proyek ini.
+  Anda dapat mencoba aplikasi ini melalui unduh installer <strong><a href="https://github.com/akhbarulhadi/geoportal_perkimtan_web/tags"><code>SetupGeoportalPerkimtan.exe</code></a></strong> yang berisi file installer (.exe) hasil build dari proyek ini.
+</p>
+
+<p>
+  🔄 Pastikan Anda memilih versi <strong>terbaru</strong> dari rilis untuk mendapatkan versi aplikasi yang paling mutakhir.
 </p>
 
 <p style="color: grey;">
