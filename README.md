@@ -64,6 +64,27 @@ The Geoportal Perkimtan project was built with the goal of delivering a responsi
   ⚠️ Saat menjalankan installer, mungkin akan muncul peringatan keamanan dari Windows (SmartScreen) karena file ini belum ditandatangani menggunakan <i>Code Signing Certificate</i>. Hal ini wajar untuk aplikasi yang belum menggunakan sertifikat resmi. Silakan klik "More info" → "Run anyway" untuk melanjutkan.
 </p>
 
+<p>
+  🔐 <strong>Demo Accounts:</strong><br>
+  The application includes two user roles: <strong>Admin</strong> and <strong>Operator</strong>, each with different access levels.<br>
+</p>
+
+<ul>
+  <li>
+    <strong>Admin</strong> – Has full access to all features including user management, data approval, and system settings.
+    <ul>
+      <li><strong>Username:</strong> <code>admin1</code></li>
+      <li><strong>Password:</strong> <code>admin1</code></li>
+    </ul>
+  </li>
+  <li>
+    <strong>Operator</strong> – Has limited access to view, input, and manage geospatial data relevant to their tasks.
+    <ul>
+      <li><strong>Username:</strong> <code>operator1</code></li>
+      <li><strong>Password:</strong> <code>operator1</code></li>
+    </ul>
+  </li>
+</ul>
 
 
 <!--line-->
