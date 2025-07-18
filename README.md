@@ -55,39 +55,57 @@ The Geoportal Perkimtan project was built with the goal of delivering a responsi
 
 <h2 id="demo">Demo</h2>
 
+<h3>🌐 Demo Web</h3>
 <p>
-  Anda dapat mencoba aplikasi ini melalui unduh installer <strong><a href="https://github.com/akhbarulhadi/geoportal_perkimtan_web/tags"><code>SetupGeoportalPerkimtan.exe</code></a></strong> yang berisi file installer (.exe) hasil build dari proyek ini.
+  Anda dapat mencoba aplikasi versi web dengan mengunduh installer <strong><a href="https://github.com/akhbarulhadi/geoportal_perkimtan_web/releases"><code>SetupGeoportalPerkimtan.exe</code></a></strong>, yang merupakan file executable hasil build dari proyek ini.
 </p>
 
 <p>
-  🔄 Pastikan Anda memilih versi <strong>terbaru</strong> dari rilis untuk mendapatkan versi aplikasi yang paling mutakhir.
+  🔄 Pastikan Anda memilih versi <strong>terbaru</strong> dari rilis untuk mendapatkan fitur dan perbaikan terkini.
 </p>
 
 <p style="color: grey;">
   ⚠️ Saat menjalankan installer, mungkin akan muncul peringatan keamanan dari Windows (SmartScreen) karena file ini belum ditandatangani menggunakan <i>Code Signing Certificate</i>. Hal ini wajar untuk aplikasi yang belum menggunakan sertifikat resmi. Silakan klik "More info" → "Run anyway" untuk melanjutkan.
 </p>
 
+<h3>📱 Demo Mobile</h3>
 <p>
-  🔐 <strong>Demo Accounts:</strong><br>
-  The application includes two user roles: <strong>Admin</strong> and <strong>Operator</strong>, each with different access levels.<br>
+  Untuk mencoba versi mobile (Android), Anda dapat mengunduh file APK melalui rilis GitHub berikut:
+  <strong><a href="https://github.com/akhbarulhadi/geoportal_perkimtan_web/releases"><code>app-release.apk</code></a></strong>
+</p>
+
+<p>
+  🛠️ Sebelum instalasi, pastikan Anda mengaktifkan opsi <strong>"Install unknown apps"</strong> atau <strong>"Sumber tidak dikenal"</strong> di perangkat Android Anda.
+</p>
+
+<hr>
+
+<p>
+  🔐 <strong>Akun Demo untuk Web:</strong><br>
+  Aplikasi versi web menyediakan dua peran pengguna: <strong>Admin</strong> dan <strong>Operator</strong>, masing-masing dengan hak akses yang berbeda.
 </p>
 
 <ul>
   <li>
-    <strong>Admin</strong> – Has full access to all features including user management, data approval, and system settings.
+    <strong>Admin</strong> – Memiliki akses penuh ke seluruh fitur seperti manajemen pengguna, persetujuan data, dan pengaturan sistem.
     <ul>
       <li><strong>Username:</strong> <code>admin1</code></li>
       <li><strong>Password:</strong> <code>admin1</code></li>
     </ul>
   </li>
   <li>
-    <strong>Operator</strong> – Has limited access to view, input, and manage geospatial data relevant to their tasks.
+    <strong>Operator</strong> – Memiliki akses terbatas untuk melihat, menginput, dan mengelola data spasial sesuai tugasnya.
     <ul>
       <li><strong>Username:</strong> <code>operator1</code></li>
       <li><strong>Password:</strong> <code>operator1</code></li>
     </ul>
   </li>
 </ul>
+
+<p>
+  🔐 <strong>Akun Demo untuk Mobile:</strong><br>
+  Aplikasi versi mobile menyediakan fitur pendaftaran akun langsung dari aplikasi.
+</p>
 
 
 <!--line-->
