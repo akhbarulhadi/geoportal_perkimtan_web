@@ -53,6 +53,11 @@ The Geoportal Perkimtan project was built with the goal of delivering a responsi
   </li>
 </ol>
 
+
+<!--line-->
+<img src="https://raw.githubusercontent.com/akhbarulhadi/akhbarulhadi.github.io/refs/heads/master/animated-line-image.gif" width="1920" />
+
+
 <h2 id="demo">Demo</h2>
 
 <h3>🌐 Demo Web</h3>
