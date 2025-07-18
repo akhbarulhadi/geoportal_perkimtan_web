@@ -93,6 +93,7 @@ class GeoDatasetTable(tables.Table):
     nama_perumahan = tables.Column(accessor='rumah.nama_perumahan', verbose_name='Nama Perumahan', default='Belum ada')
     kelurahan = tables.Column(accessor='rumah.nama_perumahan.kelurahan', verbose_name='Kelurahan', default='Belum ada')
     kecamatan = tables.Column(accessor='rumah.nama_perumahan.kecamatan', verbose_name='Kecamatan', default='Belum ada')
+    alamat_rumah = tables.Column(accessor='rumah.alamat_rumah', verbose_name='Alamat Rumah', default='Belum ada')
     jumlah_kk = tables.Column(accessor='rumah.jumlah_kk', verbose_name='Jumlah KK', default='Belum ada')
     nilai_keselamatan = tables.Column(accessor='rumah.nilai_keselamatan', verbose_name='Nilai Keselamatan', default='Belum ada')
     nilai_kesehatan = tables.Column(accessor='rumah.nilai_kesehatan', verbose_name='Nilai Kesehatan', default='Belum ada')
@@ -196,7 +197,7 @@ class GeoDatasetTable(tables.Table):
     class Meta:
         model = GeoDataset
         template_name = "administrators/template_table.html"
-        fields = ("photo_rumah", "nama_pemilik", "dibuat_oleh_users", "nama_perumahan", "kelurahan", "kecamatan", "status_rumah", "status_luas", "rumah_sewa", "perumahan_subsidi", "jumlah_kk", "nilai_keselamatan", "nilai_kesehatan", "nilai_komponen", "lokasi_rumah")
+        fields = ("photo_rumah", "nama_pemilik", "dibuat_oleh_users", "nama_perumahan", "kelurahan", "kecamatan", "alamat_rumah", "status_rumah", "status_luas", "rumah_sewa", "perumahan_subsidi", "jumlah_kk", "nilai_keselamatan", "nilai_kesehatan", "nilai_komponen", "lokasi_rumah")
 
 class AddRequestRumahTable(tables.Table):
     dibuat_oleh = tables.TemplateColumn(
