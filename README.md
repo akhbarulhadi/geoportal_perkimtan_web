@@ -76,10 +76,14 @@ The Geoportal Perkimtan project was built with the goal of delivering a responsi
 <h3>📱 Demo Mobile</h3>
 <p>
   Untuk mencoba versi mobile (Android), Anda dapat mengunduh file APK melalui rilis GitHub berikut:
-  <strong><a href="https://github.com/akhbarulhadi/geoportal_perkimtan_web/releases"><code>app-release.apk</code></a></strong>
+  <strong><a href="https://github.com/akhbarulhadi/geoportal_perkimtan_web/releases"><code>app-release.apk</code></a></strong>, yang merupakan file instalasi android hasil build dari repository terpisah.
 </p>
 
+<p style="color: grey;">
+  🔗 Link ke repository mobile: <code>Unknown Link</code> (akan diperbarui bila tersedia)
+</p>
 <p>
+
   🛠️ Sebelum instalasi, pastikan Anda mengaktifkan opsi <strong>"Install unknown apps"</strong> atau <strong>"Sumber tidak dikenal"</strong> di perangkat Android Anda.
 </p>
 
