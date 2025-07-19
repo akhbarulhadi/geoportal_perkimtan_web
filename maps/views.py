@@ -439,9 +439,10 @@ def maps_object_update_rumah_detail_json(request, pk):
 
 @login_required(login_url='/login')
 def maps_object_unit_rumah(request, pk):
-    # Cek permission
-    admin = request.user.groups.filter(name='admin').exists()
-    operator = request.user.groups.filter(name='operator').exists()
+    permission_admin = ['admin',]
+    admin = request.user.groups.filter(name__in=permission_admin).exists()
+    permission_operator = ['operator',]
+    operator = request.user.groups.filter(name__in=permission_operator).exists()
 
     # Ambil satu objek berdasarkan pk
     obj = get_object_or_404(GeoDataset, pk=pk, kategori='Unit Rumah')
