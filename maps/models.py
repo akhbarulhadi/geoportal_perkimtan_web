@@ -14,9 +14,14 @@ class GeoDataset(models.Model):
 
     def __str__(self):
         try:
-            return f"{self.rumah.nama_pemilik} (id={self.id} {self.kategori})"
+            if hasattr(self, 'rumah') and self.rumah.nama_pemilik:
+                return f"{self.rumah.nama_pemilik} (id={self.id} {self.kategori})"
+            else:
+                return f"(id={self.id} {self.kategori})"
         except Exception:
             return f"(id={self.id} {self.kategori})"
+
+
 
 class UploadProgress(models.Model):
     task_id = models.CharField(max_length=100, unique=True)

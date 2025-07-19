@@ -8,7 +8,7 @@ from django_tables2 import RequestConfig
 from maps.models import GeoDataset
 from django.db.models import Q
 from .logger import log_action
-from django.contrib.admin.models import ADDITION, DELETION
+from django.contrib.admin.models import ADDITION, DELETION, CHANGE
 from django.db import models
 
 @login_required(login_url='/login')
@@ -187,7 +187,7 @@ def addRequestRumah(request):
                 rumah_obj = post_form.save(commit=False)
                 rumah_obj.dibuat_oleh = request.user
                 rumah_obj.save()
-                log_action(request, rumah_obj, ADDITION, f'Menambahkan Data: {rumah_obj}')
+                log_action(request, rumah_obj, ADDITION, f'Mengajukan Penambahan Data: {rumah_obj}')
                 messages.success(request, 'Berhasil Mengajukan Data Rumah!')
                 post_form = RumahAddRequestForm()
             except Exception as e:
@@ -217,6 +217,7 @@ def prosesAddRequestRumah(request, pk):
     if aksi == 'tolak':
         add_request.ditolak = True
         add_request.save()
+        log_action(request, add_request, CHANGE, f'Menolak Pengajuan Data Baru: {add_request}')
         messages.info(request, "Pengajuan berhasil ditolak.")
         return redirect(request.META.get('HTTP_REFERER', '/'))
 
@@ -256,7 +257,7 @@ def prosesAddRequestRumah(request, pk):
 
         add_request.disetujui = True
         add_request.save()
-
+        log_action(request, add_request, CHANGE, f'Setujui Pengajuan Data Baru: {add_request}')
         messages.success(request, "Pengajuan disetujui dan data berhasil disimpan.")
         return redirect(request.META.get('HTTP_REFERER', '/'))
 
@@ -320,7 +321,7 @@ def updateRequestRumah(request, pk):
 
                 ur.data = perubahan
                 ur.save()
-
+                log_action(request, ur, ADDITION, f'Mengajukan Perubahan Data: {ur}')
                 messages.success(request, "Permintaan perubahan berhasil diajukan.")
             else:
                 messages.info(request, "Tidak ada perubahan yang terdeteksi.")
@@ -469,6 +470,7 @@ def prosesUpdateRequestRumah(request, pk):
     if aksi == 'tolak':
         ur.ditolak = True
         ur.save()
+        log_action(request, ur, CHANGE, f'Menolak Pengajuan Perubahan: {ur}')
         messages.info(request, "Permintaan berhasil ditolak.")
         return redirect(request.META.get('HTTP_REFERER', '/'))
 
@@ -530,7 +532,7 @@ def prosesUpdateRequestRumah(request, pk):
         # Tandai permintaan sebagai disetujui
         ur.disetujui = True
         ur.save()
-
+        log_action(request, ur, CHANGE, f'Setujui Pengajuan Perubahan: {ur}')
         messages.success(request, "Perubahan berhasil disetujui dan diterapkan.")
         return redirect(request.META.get('HTTP_REFERER', '/'))
 
@@ -547,6 +549,7 @@ def requestDeleteRumah(request, pk):
             dataset.is_delete = True
             dataset.dibuat_oleh = request.user
             dataset.save()
+            log_action(request, dataset, CHANGE, f'Mengajukan Penghapusan Data: {dataset}')
             messages.success(request, 'Penghapusan Data Berhasil Diajukan!')
         except Exception as e:
             messages.error(request, f'Gagal mengajukan hapus data: {str(e)}')
@@ -594,6 +597,7 @@ def prosesDeleteRequstRumah(request, pk):
 
     if aksi == 'setuju':
         try:
+            log_action(request, dataset, DELETION, f'Setujui Penghapusan Data: {dataset}')
             dataset.delete()
             messages.success(request, 'Data berhasil dihapus!')
         except Exception as e:
@@ -603,6 +607,7 @@ def prosesDeleteRequstRumah(request, pk):
         try:
             dataset.is_delete = False
             dataset.save()
+            log_action(request, dataset, CHANGE, f'Tolak Penghapusan Data: {dataset}')
             messages.success(request, 'Permintaan penghapusan ditolak.')
         except Exception as e:
             messages.error(request, f'Gagal menolak permintaan: {str(e)}')

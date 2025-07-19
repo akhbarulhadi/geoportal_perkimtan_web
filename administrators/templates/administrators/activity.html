@@ -32,7 +32,7 @@
           {% for entry in recent_actions %}
             <li class="border-b pb-2">
               <span class="font-medium">{{ entry.user.username }}</span>
-              melakukan
+              {% comment %}melakukan
               <span class="text-indigo-600 font-semibold">
                 {% if entry.action_flag == 1 %}
                   Penambahan
@@ -42,8 +42,11 @@
                   Penghapusan
                 {% endif %}
               </span>
-              pada{% comment %} <span class="font-semibold">{{ entry.content_type.model|capfirst }}</span>:{% endcomment %}
-              <span class="italic">"{{ entry.object_repr }}"</span><br />
+              pada<span class="font-semibold">{{ entry.content_type.model|capfirst }}</span>:
+              <span class="italic">"{{ entry.object_repr }}"</span><br /> {% endcomment %}
+              {% if entry.change_message %}
+                <span class="italic">{{ entry.change_message }}</span><br />
+              {% endif %}
               <span class="text-xs text-gray-500">{{ entry.action_time|date:'Y-m-d H:i:s' }}</span>
             </li>
           {% empty %}

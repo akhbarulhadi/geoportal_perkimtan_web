@@ -13,7 +13,7 @@ from uuid import uuid4
 from types import SimpleNamespace
 from django.contrib.auth.models import User
 from administrators.logger import log_action
-from django.contrib.admin.models import ADDITION
+from django.contrib.admin.models import ADDITION, DELETION
 from django.db.models import Count
 from django.http import HttpResponse
 
@@ -203,6 +203,8 @@ def deleteMaps(request, kategori):
             if not items.exists():
                 messages.warning(request, 'Tidak ada data yang ditemukan untuk dihapus.')
             else:
+                for item in items:
+                    log_action(request, item, DELETION, f'Menghapus Peta: {item}')
                 items.delete()
                 messages.success(request, 'Semua data dengan kategori tersebut berhasil dihapus!')
         except Exception as e:
