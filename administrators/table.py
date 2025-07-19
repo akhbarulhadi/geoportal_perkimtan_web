@@ -42,7 +42,7 @@ class PerumahanTable(tables.Table):
     class Meta:
         model = Perumahan
         template_name = "administrators/template_table.html"
-        fields = ("photo_perumahan", "nama_perumahan", "kelurahan", "kecamatan", "alamat_lengkap_perumahan", "perumahan_subsidi", "lokasi_perumahan")
+        fields = ("photo_perumahan", "nama_perumahan", "kelurahan", "kecamatan", "alamat_lengkap_perumahan", "perumahan_subsidi")
 
     
 class RusunTable(tables.Table):
@@ -139,7 +139,7 @@ class GeoDatasetTable(tables.Table):
         try:
             centroid = value.centroid
             koordinat = f"{centroid.y:.6f}, {centroid.x:.6f}"
-            url = reverse('maps:maps-unit-rumah-by-kategori', args=['Unit Rumah']) + f"?id={record.pk}"
+            url = reverse('maps:maps-object-unit-rumah', args=[record.pk]) + f"?id={record.pk}"
             return format_html('<a href="{}" class="text-blue-600 underline">{}</a>', url, koordinat)
         except Exception:
             return "Tidak tersedia"

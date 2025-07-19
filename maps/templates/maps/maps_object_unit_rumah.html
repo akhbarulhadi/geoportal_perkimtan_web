@@ -1,0 +1,176 @@
+{% extends 'template_map.html' %}
+
+{% block page_title %}
+  {{ page_title }}
+{% endblock %}
+
+{% block contents %}
+  <main class="fixed inset-0">
+    <!-- Panel Detail -->
+    <div id="info-panel" class="fixed top-0 right-[-300px] w-[300px] h-full bg-white shadow transition-all duration-300 p-5 z-[1500] flex flex-col">
+      <div class="flex justify-between border-b pb-3 mb-3 flex-shrink-0">
+        <h3 class="text-lg font-semibold">Detail:</h3>
+        <button id="close-info" class="text-xl">×</button>
+      </div>
+      <div id="info-content" class="overflow-y-auto text-sm flex-1 min-h-0">Klik area di peta</div>
+    </div>
+
+    <!-- Peta -->
+    <div id="map" class="w-full h-full"></div>
+
+    <!-- Koordinat -->
+    <div id="coordinates" class="fixed bottom-0 left-0 w-full bg-white p-2 text-center text-gray-800 border-t shadow text-sm z-[1000]">Koordinat:</div>
+  </main>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      let activeLayer = null;
+  
+      const map = L.map('map').setView([1.108, 104.05], 12);
+  
+      const baseLayers = {
+        "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map),
+        "Satellite": L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenTopoMap contributors'
+        })
+      };
+  
+      const geojsonData = {{ data_map|safe }};
+      console.log(geojsonData);
+  
+      const geoLayer = L.geoJSON(geojsonData, {
+        style: { color: "blue", weight: 2, fillOpacity: 0.5 },
+        pointToLayer: function (feature, latlng) {
+          return L.circleMarker(latlng, {
+            radius: 8,
+            fillColor: "#007bff",
+            color: "#0056b3",
+            weight: 1,
+            opacity: 1,
+            fillOpacity: 0.8
+          });
+        },
+        onEachFeature: (feature, layer) => {
+          const originalStyle = { ...layer.options };
+          const id = feature.properties.id;
+  
+          layer._originalStyle = originalStyle;
+  
+          layer.on({
+            mouseover: e => {
+              if (e.target !== activeLayer) {
+                e.target.setStyle({ weight: 4, color: "yellow" });
+              }
+            },
+            mouseout: e => {
+              if (e.target !== activeLayer) {
+                e.target.setStyle(e.target._originalStyle);
+              }
+            },
+            click: () => {
+              if (activeLayer && activeLayer !== layer) {
+                activeLayer.setStyle(activeLayer._originalStyle);
+              }
+  
+              layer.setStyle({ weight: 4, color: "orange" });
+              activeLayer = layer;
+  
+              fetch(`/maps/object-detail-json-unit-rumah/${id}/`)
+                .then(res => res.json())
+                .then(data => {
+                  const detail = Object.entries(data)
+                    .map(([k, v]) => {
+                      if (typeof v === 'object' && v !== null) {
+                        if (k === 'rumah') {
+                          return `
+                            <div class="py-1">
+                              <strong>Photo Rumah:</strong><br />
+                              ${v.photo_rumah_url ? `<img src="${v.photo_rumah_url}" alt="Foto Rumah" class="mt-1 rounded shadow w-full max-h-48 object-cover" />` : '-'}
+                            </div>
+                            <div class="py-1"><strong>Nama Pemilik:</strong> ${v.nama_pemilik ?? '-'}</div>
+                            <div class="py-1"><strong>Alamat:</strong> ${v.alamat_rumah ?? '-'}</div>
+                            <div class="py-1"><strong>Status Rumah:</strong> ${v.status_rumah ?? '-'}</div>
+                            <div class="py-1"><strong>Status Luas:</strong> ${v.status_luas ?? '-'}</div>
+                            <div class="py-1"><strong>Jumlah KK:</strong> ${v.jumlah_kk ?? '-'}</div>
+                            <div class="py-1"><strong>Nilai Keselamatan:</strong> ${v.nilai_keselamatan ?? '-'}</div>
+                            <div class="py-1"><strong>Nilai Kesehatan:</strong> ${v.nilai_kesehatan ?? '-'}</div>
+                            <div class="py-1"><strong>Nilai Komponen:</strong> ${v.nilai_komponen ?? '-'}</div>
+                            <div class="py-1"><strong>Nama Perumahan:</strong> ${v.nama_perumahan ?? '-'}</div>
+                            <div class="py-1"><strong>Kecamatan:</strong> ${v.kecamatan ?? '-'}</div>
+                            <div class="py-1"><strong>Kelurahan:</strong> ${v.kelurahan ?? '-'}</div>
+                          `;
+                        } else {
+                          return `<div class="py-1"><strong>${k}:</strong> ${JSON.stringify(v)}</div>`;
+                        }
+                      }
+                      return `<div class="py-1"><strong>${k}:</strong> ${v ?? '-'}</div>`;
+                    })
+                    .join("");
+  
+                  const buttonUpdate = `
+                  {% if admin %}
+                    <div class="pt-4">
+                      <a href="/pp/update-rumah/${id}/" class="inline-block px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700">Ubah di form</a>
+                    </div>                  
+                  {% endif %}
+                  {% if operator %}
+                  <div class="pt-4">
+                    <a href="/pp/unit-rumah/request-update-rumah/${id}/" class="inline-block px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700">Ajukan Perubahan di form</a>
+                  </div>                  
+                  {% endif %}`;
+                  
+                  document.getElementById("info-content").innerHTML = `<div class="space-y-2">${detail}${buttonUpdate}</div>`;
+                  panel.classList.replace('right-[-300px]', 'right-0');
+                  controlLayers.style.right = '320px';
+                });
+            }
+          });
+        }
+      }).addTo(map);
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const selectedId = urlParams.get('id');
+          
+      if (selectedId) {
+        geoLayer.eachLayer(layer => {
+          const featureId = layer.feature?.properties?.id;
+          if (String(featureId) === String(selectedId)) {
+            setTimeout(() => {
+              map.fitBounds(layer.getBounds(), { maxZoom: 17 });
+              layer.fire('click');
+            }, 500);
+          }
+        });
+      }
+
+      L.control.layers(baseLayers, { "GeoJSON": geoLayer }).addTo(map);
+  
+      const panel = document.getElementById('info-panel');
+      const controlLayers = document.querySelector('.leaflet-control-layers');
+      const closeBtn = document.getElementById('close-info');
+  
+      if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+          panel.classList.replace('right-0', 'right-[-300px]');
+          if (controlLayers) controlLayers.style.right = '10px';
+  
+          if (activeLayer) {
+            activeLayer.setStyle(activeLayer._originalStyle);
+            activeLayer = null;
+          }
+        });
+      }
+  
+      map.on("mousemove", e => {
+        document.getElementById("coordinates").textContent =
+          `Koordinat: ${e.latlng.lat.toFixed(6)}, ${e.latlng.lng.toFixed(6)}`;
+      });
+    });
+  </script>
+  
+{% endblock %}

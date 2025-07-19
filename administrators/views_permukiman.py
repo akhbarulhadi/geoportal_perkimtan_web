@@ -119,7 +119,7 @@ def dataRumahBelumLengkap(request):
         Q(rumah__nilai_komponen__isnull=True) |
         Q(rumah__status_luas__isnull=True) |
         Q(rumah__rumah_sewa__isnull=True) |
-        Q(jumlah_kk__isnull=True) |
+        Q(rumah__jumlah_kk__isnull=True) |
         Q(rumah__dibuat_oleh_users__isnull=True)
         ) \
         .order_by('rumah__nama_pemilik')
