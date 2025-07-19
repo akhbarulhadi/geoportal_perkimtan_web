@@ -10,3 +10,13 @@ def log_action(request, obj, action_flag, message=""):
         action_flag=action_flag,
         change_message=message
     )
+
+def log_mass_action(request, action_flag, message):
+    LogEntry.objects.create(
+        user_id=request.user.pk,
+        content_type=None,
+        object_id=None,
+        object_repr="-",
+        action_flag=action_flag,
+        change_message=message
+    )

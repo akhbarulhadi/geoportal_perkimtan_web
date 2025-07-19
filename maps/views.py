@@ -12,7 +12,7 @@ import threading
 from uuid import uuid4
 from types import SimpleNamespace
 from django.contrib.auth.models import User
-from administrators.logger import log_action
+from administrators.logger import log_action, log_mass_action
 from django.contrib.admin.models import ADDITION, DELETION
 from django.db.models import Count
 from django.http import HttpResponse
@@ -203,8 +203,8 @@ def deleteMaps(request, kategori):
             if not items.exists():
                 messages.warning(request, 'Tidak ada data yang ditemukan untuk dihapus.')
             else:
-                for item in items:
-                    log_action(request, item, DELETION, f'Menghapus Peta: {item}')
+                count = items.count()
+                log_mass_action(request, DELETION, f'Menghapus {count} data dari peta: {kategori}')
                 items.delete()
                 messages.success(request, 'Semua data dengan kategori tersebut berhasil dihapus!')
         except Exception as e:
@@ -276,8 +276,8 @@ def upload_geojson(request):
                             geometry=geom,
                             properties=props
                         )
-                        log_action(SimpleNamespace(user=user), geo_obj, ADDITION, f'Menambahkan Data: {geo_obj}')
                         UploadProgress.objects.filter(task_id=task_id).update(progress=int((i + 1) / total * 100))
+                    log_mass_action(SimpleNamespace(user=user), ADDITION, f'Menambah {total} data dari peta: {kategori}')
                     UploadProgress.objects.filter(task_id=task_id).update(status="done")
                 except Exception:
                     UploadProgress.objects.filter(task_id=task_id).update(status="failed")
@@ -338,8 +338,8 @@ def upload_geojson_unit_rumah(request):
                         Rumah.objects.create(
                             geo=geo_obj
                         )
-                        log_action(SimpleNamespace(user=user), geo_obj, ADDITION, f'Menambahkan Data: {geo_obj}')
                         UploadProgress.objects.filter(task_id=task_id).update(progress=int((i+1)/total * 100))
+                    log_mass_action(SimpleNamespace(user=user), ADDITION, f'Menambah {total} data dari peta: Unit Rumah')
                     UploadProgress.objects.filter(task_id=task_id).update(status="done")
                 except Exception:
                     UploadProgress.objects.filter(task_id=task_id).update(status="failed")
