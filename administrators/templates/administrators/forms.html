@@ -1,0 +1,336 @@
+{% extends 'template.html' %}
+{% block page_title %}
+  {{ page_title }}
+{% endblock %}
+
+{% block contents %}
+  {% if messages %}
+    <div id="messages" class="fixed top-16 right-5 z-50 space-y-4">
+      {% for message in messages %}
+        <div class="flex items-center p-4 mb-4 text-sm text-indigo-700 bg-indigo-100 rounded-lg shadow-md dark:bg-indigo-100 dark:text-indigo-700" role="alert">
+          <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 00-2 0v4a1 1 0 001 1h2a1 1 0 100-2h-1V7z" clip-rule="evenodd"></path>
+          </svg>
+          <div>{{ message }}</div>
+          <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-indigo-100 text-indigo-500 rounded-lg focus:ring-2 focus:ring-indigo-400 p-1.5 hover:bg-indigo-200 inline-flex h-8 w-8 dark:bg-indigo-200 dark:text-indigo-600 dark:hover:bg-indigo-300" aria-label="Close" onclick="this.parentElement.style.display='none';">
+            <span class="sr-only">Close</span>
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+            </svg>
+          </button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+  <main class="flex-1 p-4">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="flex flex-wrap justify-end">
+        <!-- Breadcrumbs -->
+        {% include 'administrators/breadcrumbs.html' %}
+      </div>
+      <div class="bg-gray-100 dark:bg-gray-900">
+        <div class="bg-white border border-4 rounded-lg shadow relative m-10">
+          <div class="flex items-start justify-between p-5 border-b rounded-t">
+            <h3 class="text-xl font-semibold">{{ subjudul }}</h3>
+            {% if subjudul == 'Detail Data Rumah' %}
+              <a href="{% url 'maps:maps-object-unit-rumah' geo_form.instance.id %}?id={{ geo_form.instance.id }}">View in map</a>
+            {% endif %}
+          </div>
+          <div class="p-6 space-y-6">
+            <form method="POST" enctype="multipart/form-data">
+              {% csrf_token %}
+              <div class="grid grid-cols-6 gap-6">
+                {{ post_form.non_field_errors }}
+                {% for field in post_form %}
+                  <div class="col-span-6 sm:col-span-3">
+                    <label for="{{ field.id_for_label }}" class="text-sm font-medium text-gray-900 block mb-2">{{ field.label_tag }}</label>
+                    <div class="flex items-center gap-2 w-full">
+                      <div class="w-full">{{ field }}</div>
+
+                      {% if field.field.widget.attrs.addable %}
+                        <a href="#" class="bg-blue-500 text-white px-3 py-1 rounded" onclick="return showAddAnotherPopup(this);" data-field-name="{{ field.html_name }}">+</a>
+                      {% endif %}
+                      {% if field.field.widget.attrs.add_map_button %}
+                        <button type="button" onclick="openMapPostFormModal()" class="px-2 py-1 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700">📍</button>
+                      {% endif %}
+                      {% if field.field.widget.attrs.add_map_geo_button %}
+                        <button type="button" onclick="openMapGeoFormModal()" class="px-2 py-1 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700">📍</button>
+                      {% endif %}
+                    </div>
+                    {% if field.help_text %}
+                      <p class="text-gray-600 text-xs italic">{{ field.help_text }}</p>
+                    {% endif %}
+                    {% for error in field.errors %}
+                      <p class="text-red-500 text-xs italic">{{ error }}</p>
+                    {% endfor %}
+                  </div>
+                {% endfor %}
+                <!-- Bagian Form GeoDataset -->
+                {{ geo_form.non_field_errors }}
+                {% for field in geo_form %}
+                  <div class="col-span-6 sm:col-span-3">
+                    <label for="{{ field.id_for_label }}" class="text-sm font-medium text-gray-900 block mb-2">{{ field.label_tag }}</label>
+                    <div class="flex items-center gap-2 w-full">
+                      <div class="w-full">{{ field }}</div>
+
+                      {% if field.field.widget.attrs.addable %}
+                        <a href="#" class="bg-blue-500 text-white px-3 py-1 rounded" onclick="return showAddAnotherPopup(this);" data-field-name="{{ field.html_name }}">+</a>
+                      {% endif %}
+                      {% if field.field.widget.attrs.add_map_geo_button %}
+                        <button type="button" onclick="openMapGeoFormModal()" class="px-2 py-1 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700">📍</button>
+                      {% endif %}
+                    </div>
+                    {% if field.help_text %}
+                      <p class="text-gray-600 text-xs italic">{{ field.help_text }}</p>
+                    {% endif %}
+                    {% for error in field.errors %}
+                      <p class="text-red-500 text-xs italic">{{ error }}</p>
+                    {% endfor %}
+                  </div>
+                {% endfor %}
+
+                <!-- Modal post_form -->
+                <div id="mapPostFormModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                  <div class="bg-white rounded-lg p-4 w-full max-w-2xl relative">
+                    <h2 class="text-lg font-bold mb-4">Pilih Lokasi</h2>
+                    <!-- MAP -->
+                    <div id="map" class="h-[400px] w-full rounded border"></div>
+                    <!-- Tombol Simpan & Tutup -->
+                    <div class="flex justify-end mt-4 gap-2">
+                      <button type="button" onclick="closeMapPostFormModal()" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Tutup</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Modal geo_form -->
+                <div id="mapGeoFormModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                  <div class="bg-white rounded-lg p-4 w-full max-w-2xl relative">
+                    <h2 class="text-lg font-bold mb-4">Pilih Lokasi</h2>
+                    <!-- MAP -->
+                    <div id="map_geo_form" class="h-[400px] w-full rounded border"></div>
+                    <!-- Tombol Simpan & Tutup -->
+                    <div class="flex justify-end mt-4 gap-2">
+                      <button type="button" onclick="closeMapGeoFormModal()" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Tutup</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-8 border-t border-gray-200 rounded-b flex flex-wrap justify-between">
+                <button class="mt-4 text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center" type="submit">{{ button }}</button>
+                {% if subjudul == 'Detail Data Rumah' %}
+                  <a href="{% url 'administrators:preview-data-rumah-pdf' pk=geo_form.instance.pk %}" class="mt-4">🖨️ Preview PDF</a>
+                {% endif %}
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      setTimeout(function () {
+        var messages = document.getElementById('messages')
+        if (messages) {
+          messages.style.display = 'none'
+        }
+      }, 5000)
+    })
+  </script>
+
+  <style>
+    /* Pastikan input search Select2 memiliki background putih */
+    .select2-container--default .select2-search--dropdown .select2-search__field {
+      background-color: white !important;
+      color: black !important;
+    }
+    
+    /* Perbaiki warna dropdown agar tidak hitam */
+    .select2-container--default .select2-results > .select2-results__options {
+      background-color: white !important;
+      color: black !important;
+    }
+    
+    /* Hindari tampilan kotak hitam karena Tailwind */
+    .select2-container .select2-selection--single {
+      background-color: white !important;
+    
+      .leaflet-div-icon {
+        width: 12px !important;
+        height: 12px !important;
+        border-radius: 50% !important;
+        background-color: #3388ff !important;
+        border: 2px solid white !important;
+        position: relative;
+        z-index: 10;
+      }
+    
+      /* Tambahkan area klik tak terlihat tapi besar */
+      .leaflet-div-icon::before {
+        content: '';
+        position: absolute;
+        top: -6px;
+        left: -6px;
+        width: 20px;
+        height: 20px;
+        background: transparent;
+        z-index: -1;
+      }
+    }
+  </style>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+  <script>
+    // Inisialisasi Select2 setelah halaman selesai dimuat
+    $(document).ready(function () {
+      $('.select2').select2({
+        placeholder: 'Cari...',
+        allowClear: true,
+        width: '100%',
+        dropdownAutoWidth: true
+      })
+    })
+  </script>
+
+  <script>
+    function showAddAnotherPopup(triggeringLink) {
+      var fieldName = triggeringLink.getAttribute('data-field-name')
+    
+      var urls = {
+        nama_perumahan: "{% url 'administrators:popup-add-perumahan' %}?_popup=1",
+        kelurahan: "{% url 'administrators:add-kelurahan' %}?_popup=1",
+        kecamatan: "{% url 'administrators:add-kecamatan' %}?_popup=1"
+      }
+    
+      if (urls[fieldName]) {
+        var win = window.open(urls[fieldName], fieldName, 'height=500,width=800,resizable=yes,scrollbars=yes')
+        win.focus()
+        return false
+      } else {
+        alert('Form ini tidak memiliki halaman tambah otomatis.')
+        return false
+      }
+    }
+    
+    function dismissAddAnotherPopup(win, newId, newRepr) {
+      var fieldName = win.name
+      var selectField = document.getElementById(fieldName)
+    
+      if (selectField) {
+        var newOption = new Option(newRepr, newId, true, true)
+    
+        // Tambahkan opsi baru dan trigger event perubahan
+        $(selectField).append(newOption).trigger('change')
+    
+        // Pastikan opsi baru terlihat dalam Select2
+        setTimeout(() => {
+          $(selectField).trigger('change')
+        }, 100)
+      }
+    
+      // Tutup jendela popup
+      win.close()
+    }
+  </script>
+
+  {% comment %}ini unutk map post_form{% endcomment %}
+  <script>
+    let map
+    let marker
+    
+    function openMapPostFormModal() {
+      document.getElementById('mapPostFormModal').classList.remove('hidden')
+    
+      // Delay sedikit agar modal selesai render sebelum init map
+      setTimeout(() => {
+        if (!map) {
+          map = L.map('map').setView([1.108, 104.05], 12)
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+          }).addTo(map)
+    
+          map.on('click', function (e) {
+            const lat = e.latlng.lat
+            const lng = e.latlng.lng
+    
+            // Update marker
+            if (marker) {
+              map.removeLayer(marker)
+            }
+            marker = L.marker([lat, lng]).addTo(map)
+    
+            // Masukkan ke input hidden (jika ada)
+            document.getElementById('id_titik').value = `POINT(${lng} ${lat})`
+          })
+        }
+    
+        map.invalidateSize() // Wajib untuk render dalam modal
+      }, 100)
+    }
+    
+    function closeMapPostFormModal() {
+      document.getElementById('mapPostFormModal').classList.add('hidden')
+    }
+  </script>
+
+  {% comment %}ini unutk map geo_form{% endcomment %}
+  <script src="https://unpkg.com/terraformer"></script>
+  <script src="https://unpkg.com/terraformer-wkt-parser"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
+  {% comment %}ini unutk map geo_form{% endcomment %}
+  <script>
+    let mapGeo, drawnItems, drawControl
+    
+    function openMapGeoFormModal() {
+      console.log('Modal GeoForm dibuka...') // Tambahkan ini
+    
+      document.getElementById('mapGeoFormModal').classList.remove('hidden')
+    
+      setTimeout(() => {
+        if (!mapGeo) {
+          mapGeo = L.map('map_geo_form').setView([1.108, 104.05], 12)
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+          }).addTo(mapGeo)
+    
+          drawnItems = new L.FeatureGroup()
+          mapGeo.addLayer(drawnItems)
+    
+          drawControl = new L.Control.Draw({
+            edit: { featureGroup: drawnItems },
+            draw: {
+              polygon: true,
+              marker: false,
+              polyline: false,
+              rectangle: false,
+              circle: false,
+              circlemarker: false
+            }
+          })
+          mapGeo.addControl(drawControl)
+    
+          mapGeo.on(L.Draw.Event.CREATED, function (e) {
+            const layer = e.layer
+            drawnItems.clearLayers()
+            drawnItems.addLayer(layer)
+    
+            const geojson = layer.toGeoJSON()
+            const wkt = Terraformer.WKT.convert(geojson.geometry) // Butuh lib Terraformer
+    
+            document.getElementById('geometry').value = wkt
+          })
+        }
+    
+        map.invalidateSize()
+      }, 100)
+    }
+    
+    function closeMapGeoFormModal() {
+      document.getElementById('mapGeoFormModal').classList.add('hidden')
+    }
+  </script>
+{% endblock %}

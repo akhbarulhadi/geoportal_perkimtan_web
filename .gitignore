@@ -1,0 +1,14 @@
+.env
+output/
+build/
+dist/
+staticfiles/
+geoportal_perkimtan_web.spec
+hardcode settings.txt
+installer hardcode key.iss
+installer manual key.iss
+run_django.py
+__pycache__/
+**/__pycache__/
+*.pyc
+hapus history commit.txt

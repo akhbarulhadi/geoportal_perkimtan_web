@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <meta charset="utf-8" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      td,
+      th {
+        border: 1px solid #000;
+        padding: 6px;
+        text-align: left;
+      }
+      h2 {
+        text-align: center;
+      }
+      @media print {
+        /* Sembunyikan semua elemen yang tidak perlu dicetak */
+        #print-button {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Data Rumah</h2>
+    <button id="print-button" style="padding: 8px 12px; margin-bottom: 20px; cursor: pointer;">🖨️ Cetak Halaman</button>
+    <table>
+      <tr>
+        <th>Foto Rumah</th>
+        <td>
+          {% if rumah.photo_rumah %}
+            <img src="{{ rumah.photo_rumah.url }}" width="200" />
+          {% else %}
+            Tidak ada foto
+          {% endif %}
+        </td>
+      </tr>
+      <tr>
+        <th>Nama Pemilik</th>
+        <td>{{ rumah.nama_pemilik }}</td>
+      </tr>
+      <tr>
+        <th>Alamat</th>
+        <td>{{ rumah.alamat_rumah }}</td>
+      </tr>
+      <tr>
+        <th>Rumah Sewa</th>
+        <td>{{ rumah.rumah_sewa }}</td>
+      </tr>
+      <tr>
+        <th>Jumlah KK</th>
+        <td>{{ rumah.jumlah_kk }}</td>
+      </tr>
+      <tr>
+        <th>Status Rumah</th>
+        <td>{{ rumah.status_rumah }}</td>
+      </tr>
+      <tr>
+        <th>Status Luas</th>
+        <td>{{ rumah.status_luas }}</td>
+      </tr>
+      <tr>
+        <th>Nilai Keselamatan</th>
+        <td>{{ rumah.nilai_keselamatan }}</td>
+      </tr>
+      <tr>
+        <th>Nilai Kesehatan</th>
+        <td>{{ rumah.nilai_kesehatan }}</td>
+      </tr>
+      <tr>
+        <th>Nilai Komponen</th>
+        <td>{{ rumah.nilai_komponen }}</td>
+      </tr>
+      <tr>
+        <th>Perumahan</th>
+        <td>{{ perumahan.nama_perumahan }}</td>
+      </tr>
+      <tr>
+        <th>Kecamatan</th>
+        <td>{{ kecamatan }}</td>
+      </tr>
+      <tr>
+        <th>Lokasi Rumah</th>
+        <td>
+          <div id="map" style="height: 350px; width: 100%;"></div>
+        </td>
+      </tr>
+    </table>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const map = L.map('map', {
+          center: [1.108, 104.05],
+          zoom: 12,
+          zoomControl: false,
+          scrollWheelZoom: false,
+          doubleClickZoom: false,
+          dragging: false,
+          touchZoom: false,
+          boxZoom: false,
+          keyboard: false
+      });
+  
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              attribution: '&copy; OpenStreetMap contributors'
+          }).addTo(map);
+  
+          // Ambil data dari Django. Filter |safe sangat penting.
+          const geojsonData = {{ geo.geometry.geojson|safe }};
+  
+          // PERIKSA DULU APAKAH DATA ADA DAN VALID! Ini adalah perbaikan kuncinya.
+          if (geojsonData && geojsonData.type) {
+          
+              // Buat layer dari data GeoJSON. L.geoJSON bisa menerima objek langsung.
+              const geometryLayer = L.geoJSON(geojsonData, {
+                  
+                  pointToLayer: function (feature, latlng) {
+                      // Kustomisasi tampilan untuk Point
+                      return L.circleMarker(latlng, {
+                          radius: 8, fillColor: "#2563eb", color: "#1e40af",
+                          weight: 1, opacity: 1, fillOpacity: 0.8
+                      });
+                  },
+                  style: function (feature) {
+                      // Kustomisasi tampilan untuk Polygon
+                      return {
+                          color: "#dc2626", weight: 3, fillOpacity: 0.4
+                      };
+                  }
+  
+              }).addTo(map);
+  
+              // Zoom ke geometri jika layer berhasil dibuat
+              if (geometryLayer.getBounds().isValid()) {
+                  map.fitBounds(geometryLayer.getBounds(), { padding: [30, 30] });
+              }
+          }
+          // Jika geojsonData kosong, tidak akan terjadi apa-apa dan tidak ada error.
+          // Peta akan tetap tampil dengan pusat default di Batam.
+      });
+      </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // ... kode peta Leaflet Anda yang sudah ada ...
+    
+    
+            // --- TAMBAHKAN KODE INI ---
+            const printButton = document.getElementById('print-button');
+            if (printButton) {
+                printButton.addEventListener('click', () => {
+                    window.print(); // Perintah untuk memanggil dialog cetak browser
+                });
+            }
+        });
+    </script>
+  </body>
+</html>

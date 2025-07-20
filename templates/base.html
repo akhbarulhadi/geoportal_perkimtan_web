@@ -1,0 +1,25 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>
+      {% block page_title %}
+
+      {% endblock %}
+    </title>
+    <link rel="icon" href="https://img.icons8.com/fluent/344/worldwide-location.png" type="image/x-icon" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    {% tailwind_css %}
+  </head>
+  <body class="">
+    {% comment %} <div class="container mx-auto mt-8">
+      {% endcomment %}
+      {% block contents %}
+
+      {% endblock %}
+      {% comment %}
+    </div> {% endcomment %}
+  </body>
+</html>

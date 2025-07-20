@@ -1,0 +1,73 @@
+{% load static %}
+
+<aside class="sidebar fixed lg:static w-[240px] bg-indigo-50 h-[calc(100vh-4rem)] lg:h-auto transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-40 p-4">
+  <div class="bg-white rounded-xl shadow-lg mb-6 p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+    <a href="{% url 'administrators:index' %}" class="flex items-center text-gray-600 hover:text-indigo-800 py-4 transition-all duration-300 hover:translate-x-1
+        {% if request.path == '/' %} text-indigo-800 font-bold {% endif %}">
+      <span class="material-icons-outlined mr-2">dashboard</span>
+      Utama
+      <span class="material-icons-outlined ml-auto">keyboard_arrow_right</span>
+    </a>
+    <a href="{% url 'administrators:pp' %}" class="flex items-center text-gray-600 hover:text-indigo-800 py-4 transition-all duration-300 hover:translate-x-1
+        {% if request.path == '/pp/' %} text-indigo-800 font-bold {% endif %}">
+      <span class="material-icons-outlined mr-2">home</span>
+      Permukiman
+      <span class="material-icons-outlined ml-auto">keyboard_arrow_right</span>
+    </a>
+    {% if admin %}
+      <a href="{% url 'maps:upload-geojson' %}" class="flex items-center text-gray-600 hover:text-indigo-800 py-4 transition-all duration-300 hover:translate-x-1
+      {% if request.path == '/maps/upload/' or request.path == '/maps/upload-unit-rumah/' %} text-indigo-800 font-bold {% endif %}">
+        <span class="material-icons-outlined mr-2">map</span>
+        Unggah Koordinat
+        <span class="material-icons-outlined ml-auto">keyboard_arrow_right</span>
+      </a>
+    {% endif %}
+
+    <a href="{% url 'maps:datasets' %}" class="flex items-center text-gray-600 hover:text-indigo-800 py-4 transition-all duration-300 hover:translate-x-1
+    {% if request.path == '/maps/datasets/' %} text-indigo-800 font-bold {% endif %}">
+      <span class="material-icons-outlined mr-2">map</span>
+      Peta
+      <span class="material-icons-outlined ml-auto">keyboard_arrow_right</span>
+    </a>
+  </div>
+
+  <div class="bg-white rounded-xl shadow-lg mb-6 p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+    {% comment %} <a href="/" class="flex items-center text-gray-600 hover:text-indigo-800 py-4 transition-all duration-300 hover:translate-x-1">
+      <span class="material-icons-outlined mr-2">groups</span>
+      Kontribusi Masyarakat
+      <span class="material-icons-outlined ml-auto">keyboard_arrow_right</span>
+    </a> {% endcomment %}
+    <a href="{% url 'administrators:pengajuan' %}" class="flex items-center text-gray-600 hover:text-indigo-800 py-4 transition-all duration-300 hover:translate-x-1
+    {% if request.path == '/pengajuan/' %} text-indigo-800 font-bold {% endif %}">
+      <span class="material-icons-outlined mr-2">insert_drive_file</span>
+      Pengajuan
+      <span class="material-icons-outlined ml-auto">keyboard_arrow_right</span>
+    </a>
+    <a href="{% url 'administrators:activity' %}" class="flex items-center text-gray-600 hover:text-indigo-800 py-4 transition-all duration-300 hover:translate-x-1
+      {% if request.path == '/activity/' %} text-indigo-800 font-bold {% endif %}">
+      <span class="material-icons-outlined mr-2">snowshoeing</span>
+      Aktivitas Pengguna
+      <span class="material-icons-outlined ml-auto">keyboard_arrow_right</span>
+    </a>
+  </div>
+
+  <div class="bg-white rounded-xl shadow-lg p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+    <a href="{% url 'profile' %}" class="flex items-center text-gray-600 hover:text-indigo-800 py-4 transition-all duration-300 hover:translate-x-1
+    {% if request.path == '/profile/' %} text-indigo-800 font-bold {% endif %}">
+      <span class="material-icons-outlined mr-2">face</span>
+      Profile
+      <span class="material-icons-outlined ml-auto">keyboard_arrow_right</span>
+    </a>
+    <a href="{% url 'password-change' %}" class="flex items-center text-gray-600 hover:text-indigo-800 py-4 transition-all duration-300 hover:translate-x-1
+    {% if request.path == '/password-change/' %} text-indigo-800 font-bold {% endif %}">
+      <span class="material-icons-outlined mr-2">settings</span>
+      Settings
+      <span class="material-icons-outlined ml-auto">keyboard_arrow_right</span>
+    </a>
+    <a href="{% url 'logout' %}" class="flex items-center text-gray-600 hover:text-indigo-800 py-4 transition-all duration-300 hover:translate-x-1">
+      <span class="material-icons-outlined mr-2">power_settings_new</span>
+      Log out
+      <span class="material-icons-outlined ml-auto">keyboard_arrow_right</span>
+    </a>
+  </div>
+</aside>

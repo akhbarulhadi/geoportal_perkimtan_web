@@ -1,0 +1,191 @@
+{% extends 'template.html' %}
+
+{% block page_title %}
+  {{ page_title }}
+{% endblock %}
+
+{% block contents %}
+  {% if messages %}
+    <div id="messages" class="fixed top-16 right-5 z-50 space-y-4">
+      {% for message in messages %}
+        <div class="flex items-center p-4 mb-4 text-sm text-indigo-700 bg-indigo-100 rounded-lg shadow-md dark:bg-indigo-100 dark:text-indigo-700" role="alert">
+          <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 00-2 0v4a1 1 0 001 1h2a1 1 0 100-2h-1V7z" clip-rule="evenodd"></path>
+          </svg>
+          <div>{{ message }}</div>
+          <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-indigo-100 text-indigo-500 rounded-lg focus:ring-2 focus:ring-indigo-400 p-1.5 hover:bg-indigo-200 inline-flex h-8 w-8 dark:bg-indigo-200 dark:text-indigo-600 dark:hover:bg-indigo-300" aria-label="Close" onclick="this.parentElement.style.display='none';">
+            <span class="sr-only">Close</span>
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+            </svg>
+          </button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <main class="flex-1 p-4 overflow-x-auto">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="mb-6 flex flex-wrap justify-between">
+        <h2 class="text-2xl font-bold">{{ subjudul }}</h2>
+        <!-- Breadcrumbs -->
+        {% include 'administrators/breadcrumbs.html' %}
+      </div>
+
+      <div class="mb-4 flex flex-wrap justify-between">
+        <button id="reloadButton" class="flex items-center gap-1 bg-gray-500 text-white py-1.5 px-3 rounded-md text-xs hover:bg-gray-400 transition duration-300 ease-in-out transform hover:scale-105">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+          </svg>Reload
+        </button>
+        <button class="flex items-center gap-1 bg-gray-500 text-white py-1.5 px-3 rounded-md text-xs hover:bg-gray-400 transition duration-300 ease-in-out transform hover:scale-105">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
+          </svg>Filter
+        </button>
+      </div>
+
+      <form method="get" class="mb-4 flex gap-2 items-center">
+        <input type="text" name="search" placeholder="{{ placeholder_search }}" value="{{ request.GET.search }}" class="px-3 py-2 border border-gray-300 rounded-md w-full max-w-md bg-white text-black dark:bg-gray-800 dark:text-white" />
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-500">Cari</button>
+      </form>
+      {% if request.GET.search %}
+        <p class="text-sm text-gray-500 mb-2">
+          Menampilkan hasil untuk: <strong>{{ request.GET.search }}</strong>
+        </p>
+      {% endif %}
+
+      <!-- Tabel -->
+      {% load render_table from django_tables2 %}
+      {% render_table table %}
+
+      <!-- Paginator -->
+      {% if table.page and table.paginator.num_pages > 0 %}
+        <div class="flex justify-between mt-4">
+          <div class="text-sm text-gray-600 mb-2 text-center">Showing {{ table.page.start_index }} to {{ table.page.end_index }} of {{ table.paginator.count }} entries</div>
+          <div>
+            <nav class="inline-flex space-x-1">
+              {% if table.page.has_previous %}
+                <a href="?page={{ table.page.previous_page_number }}" class="px-3 py-1 border rounded-md text-sm text-gray-700 hover:bg-gray-200">&laquo;</a>
+              {% else %}
+                <span class="px-3 py-1 border rounded-md text-sm text-gray-400 cursor-not-allowed">&laquo;</span>
+              {% endif %}
+
+              {% for num in table.paginator.page_range %}
+                {% if num == table.page.number %}
+                  <span class="px-3 py-1 border rounded-md text-sm bg-blue-500 text-white">{{ num }}</span>
+                {% elif num >= table.page.number|add:'-2' and num <= table.page.number|add:'2' %}
+                  <a href="?page={{ num }}" class="px-3 py-1 border rounded-md text-sm text-gray-700 hover:bg-gray-200">{{ num }}</a>
+                {% elif num == 1 or num == table.paginator.num_pages %}
+                  <a href="?page={{ num }}" class="px-3 py-1 border rounded-md text-sm text-gray-700 hover:bg-gray-200">{{ num }}</a>
+                {% elif forloop.first or forloop.last %}
+                  <span class="px-3 py-1 text-sm text-gray-400">...</span>
+                {% endif %}
+              {% endfor %}
+
+              {% if table.page.has_next %}
+                <a href="?page={{ table.page.next_page_number }}" class="px-3 py-1 border rounded-md text-sm text-gray-700 hover:bg-gray-200">&raquo;</a>
+              {% else %}
+                <span class="px-3 py-1 border rounded-md text-sm text-gray-400 cursor-not-allowed">&raquo;</span>
+              {% endif %}
+            </nav>
+          </div>
+        </div>
+      {% endif %}
+      <!-- Modal -->
+      <div id="deleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div class="bg-white rounded-lg p-6 max-w-sm w-full shadow-lg">
+          {% if admin %}
+            <h2 class="text-lg font-semibold mb-4">Konfirmasi Hapus</h2>
+            <p class="mt-2 mb-1">Apakah kamu yakin ingin menghapus data ini?</p>
+            <p class="text-sm mb-6 text-gray-400">Jika data ini terhubung ke data lain maka juga akan di hapus.</p>
+          {% endif %}
+          {% if operator %}
+            <h2 class="text-lg font-semibold mb-4">Pengajuan Hapus Data</h2>
+            <p class="mt-2 mb-1">Apakah kamu yakin ingin mengajukan penghapusan data ini?</p>
+            <p class="text-sm mb-6 text-gray-400">Jika admin setuju, data ini akan terhapus.</p>
+          {% endif %}
+
+          <!-- Form konfirmasi -->
+          <form id="deleteForm" method="post">
+            {% csrf_token %}
+            <div class="flex justify-end space-x-2">
+              <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Batal</button>
+              <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Hapus</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      setTimeout(function () {
+        var messages = document.getElementById('messages')
+        if (messages) {
+          messages.style.display = 'none'
+        }
+      }, 5000)
+    })
+  </script>
+
+  <script>
+    function openModal(pk) {
+      const modal = document.getElementById('deleteModal')
+      const form = document.getElementById('deleteForm')
+      const url = `/pp/delete-rumah/${pk}/`
+    
+      form.action = url
+      modal.classList.remove('hidden')
+    }
+    
+    function closeModal() {
+      document.getElementById('deleteModal').classList.add('hidden')
+    }
+  </script>
+
+  <script>
+    function openModalRequestDelRumah(pk) {
+      const modal = document.getElementById('deleteModal')
+      const form = document.getElementById('deleteForm')
+      const url = `/pp/unit-rumah/request-delete-rumah/${pk}/`
+    
+      form.action = url
+      modal.classList.remove('hidden')
+    }
+    
+    function closeModal() {
+      document.getElementById('deleteModal').classList.add('hidden')
+    }
+  </script>
+
+  <script>
+    function openModalDelPerumahan(pk) {
+      const modal = document.getElementById('deleteModal')
+      const form = document.getElementById('deleteForm')
+      const url = `/pp/delete-perumahan/${pk}/`
+    
+      form.action = url
+      modal.classList.remove('hidden')
+    }
+    
+    function closeModal() {
+      document.getElementById('deleteModal').classList.add('hidden')
+    }
+  </script>
+  <script>
+    function openModalDelRusun(pk) {
+      const modal = document.getElementById('deleteModal')
+      const form = document.getElementById('deleteForm')
+      const url = `/pp/delete-rusun/${pk}/`
+    
+      form.action = url
+      modal.classList.remove('hidden')
+    }
+    
+    function closeModal() {
+      document.getElementById('deleteModal').classList.add('hidden')
+    }
+  </script>
+{% endblock %}

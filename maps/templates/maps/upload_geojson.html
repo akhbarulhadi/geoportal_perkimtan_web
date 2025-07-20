@@ -1,0 +1,202 @@
+{% extends 'template.html' %}
+{% block page_title %}
+  {{ page_title }}
+{% endblock %}
+
+{% block contents %}
+  {% if messages %}
+    <div id="messages" class="fixed top-16 right-5 z-50 space-y-4">
+      {% for message in messages %}
+        <div class="flex items-center p-4 mb-4 text-sm text-indigo-700 bg-indigo-100 rounded-lg shadow-md dark:bg-indigo-100 dark:text-indigo-700" role="alert">
+          <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 00-2 0v4a1 1 0 001 1h2a1 1 0 100-2h-1V7z" clip-rule="evenodd"></path>
+          </svg>
+          <div>{{ message }}</div>
+          <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-indigo-100 text-indigo-500 rounded-lg focus:ring-2 focus:ring-indigo-400 p-1.5 hover:bg-indigo-200 inline-flex h-8 w-8 dark:bg-indigo-200 dark:text-indigo-600 dark:hover:bg-indigo-300" aria-label="Close" onclick="this.parentElement.style.display='none';">
+            <span class="sr-only">Close</span>
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+            </svg>
+          </button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <main class="flex-1 p-4">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="bg-gray-100 dark:bg-gray-900">
+        <div class="bg-white border border-4 rounded-lg shadow relative m-10">
+          <div class="flex w-full">
+            <a href="{% url 'maps:upload-geojson' %}" class="w-1/2 text-center text-sm font-medium text-black bg-gray-100 hover:bg-gray-300 py-3 transition {% if request.path == '/maps/upload/' %} bg-gray-200 font-bold {% endif %}">Upload Peta</a>
+            <a href="{% url 'maps:upload-unit-rumah-geojson' %}" class="w-1/2 text-center text-sm font-medium text-black bg-gray-100 hover:bg-gray-200 py-3 transition {% if request.path == '/maps/upload-unit-rumah/' %} bg-gray-200 font-bold {% endif %}">Upload Peta Rumah</a>
+          </div>
+          <div class="flex items-start justify-between p-5 border-b rounded-t">
+            <h3 class="text-xl font-semibold">{{ subjudul }}</h3>
+          </div>
+          <div class="p-6 space-y-6">
+            <!-- Progress Bar -->
+            {% comment %} <div id="progress-wrapper" class="hidden mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Uploading...</label>
+              <div class="w-full bg-gray-200 rounded-full h-3">
+                <div id="upload-progress" class="bg-indigo-600 h-3 rounded-full" style="width: 0%;"></div>
+              </div>
+              <p id="progress-text" class="text-sm text-gray-600 mt-1">0%</p>
+            </div> {% endcomment %}
+            <form id="upload-form" enctype="multipart/form-data" data-upload-url="{% url upload_url_name %}">
+              {% csrf_token %}
+              <div class="grid grid-cols-6 gap-6">
+                {{ post_form.non_field_errors }}
+                {% for field in form %}
+                  {% if field.name != 'kategori' and field.name != 'nama_dataset' %}
+                    <div class="col-span-6 sm:col-span-3">
+                      <label for="{{ field.id_for_label }}" class="text-sm font-medium text-gray-900 block mb-2">{{ field.label_tag }}</label>
+                      <div class="flex items-center gap-2 w-full">
+                        <div class="w-full">{{ field }}</div>
+                      </div>
+                      {% if field.help_text %}
+                        <p class="text-gray-600 text-xs italic">{{ field.help_text }}</p>
+                      {% endif %}
+                      {% for error in field.errors %}
+                        <p class="text-red-500 text-xs italic">{{ error }}</p>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                {% endfor %}
+                {% if form.fields.kategori %}
+                  <div class="col-span-6 sm:col-span-3">
+                    <label for="kategori-select" class="text-sm font-medium text-gray-900 block mb-2">Nama Map</label>
+                    <input type="text" name="kategori" id="kategori-select" value="{{ form.kategori.value|default_if_none:'' }}" class="tom-input block w-full p-2.5 rounded-lg border border-gray-300 shadow-sm focus:ring-cyan-600 focus:border-cyan-600 sm:text-sm text-gray-900" placeholder="Buat baru atau cari yang sudah ada" />
+
+                    {% for error in form.kategori.errors %}
+                      <p class="text-red-500 text-xs italic">{{ error }}</p>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+                {% if form.fields.nama_dataset %}
+                  <div class="col-span-6 sm:col-span-3">
+                    <label for="nama-dataset-select" class="text-sm font-medium text-gray-900 block mb-2">Item Menu Untuk Filter</label>
+                    <input type="text" name="nama_dataset" id="nama-dataset-select" value="{{ form.nama_dataset.value|default_if_none:'' }}" class="tom-input block w-full p-2.5 rounded-lg border border-gray-300 shadow-sm focus:ring-cyan-600 focus:border-cyan-600 sm:text-sm text-gray-900" placeholder="Buat baru atau cari yang sudah ada" />
+
+                    {% for error in form.nama_dataset.errors %}
+                      <p class="text-red-500 text-xs italic">{{ error }}</p>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+              <div class="mt-8 border-t border-gray-200 rounded-b">
+                <button class="mt-4 text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center" type="submit">Upload</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Progress Modal -->
+    <div id="progress-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-50">
+      <div class="bg-white w-full max-w-md p-6 rounded-lg shadow-lg relative">
+        <button onclick="closeProgressModal()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+        <h2 class="text-lg font-semibold mb-2">Mengunggah File...</h2>
+        <p class="text-sm text-gray-600 mb-4">Proses sedang berlangsung. Kamu bisa menutup jendela ini dan proses akan tetap berjalan.</p>
+        <div class="w-full bg-gray-200 rounded-full h-3 mb-2">
+          <div id="upload-progress" class="bg-indigo-600 h-3 rounded-full" style="width: 0%;"></div>
+        </div>
+        <p id="progress-text" class="text-sm text-gray-600">0%</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Tom Select JS -->
+  <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      setTimeout(function () {
+        var messages = document.getElementById('messages')
+        if (messages) {
+          messages.style.display = 'none'
+        }
+      }, 5000)
+    })
+  </script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      new TomSelect("#nama-dataset-select", {
+        create: false,
+        persist: false,
+        maxItems: 1,
+        options: [
+          {% for item in item_menu_filter %}
+            { value: "{{ item }}", text: "{{ item }}" },
+          {% endfor %}
+        ]
+      });
+    });
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      new TomSelect("#kategori-select", {
+        create: true,
+        persist: false,
+        maxItems: 1,
+        options: [
+          {% for kat in kategori_list %}
+            { value: "{{ kat }}", text: "{{ kat }}" },
+          {% endfor %}
+        ]
+      });
+    });
+  </script>
+  <script>
+    const form = document.getElementById('upload-form');
+    const progressBar = document.getElementById('upload-progress');
+    const progressText = document.getElementById('progress-text');
+    const modal = document.getElementById('progress-modal');
+  
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const uploadUrl = form.dataset.uploadUrl;
+  
+      fetch(uploadUrl, {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        body: formData,
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.task_id) {
+          modal.classList.remove('hidden');
+  
+          const interval = setInterval(() => {
+            fetch(`/maps/check-progress/${data.task_id}/`)
+              .then(res => res.json())
+              .then(progressData => {
+                progressBar.style.width = progressData.progress + '%';
+                progressText.textContent = progressData.progress + '%';
+  
+                if (progressData.status === 'done') {
+                  clearInterval(interval);
+                  window.location.href = "/maps/datasets/";
+                } else if (progressData.status === 'failed') {
+                  clearInterval(interval);
+                  alert("Proses gagal.");
+                }
+              });
+          }, 1000);
+        } else {
+          alert("Gagal mengunggah file.");
+        }
+      });
+    });
+  
+    function closeProgressModal() {
+      modal.classList.add('hidden');
+    }
+  </script>
+{% endblock %}
